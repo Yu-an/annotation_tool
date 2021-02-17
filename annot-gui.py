@@ -1,8 +1,9 @@
 import pandas as pd 
 import tkinter as tk
+from tkinter import messagebox
 
 
-
+datafile = input("Which file are you going to work on? ")
 
 index = 0
 warning_appeared = False
@@ -18,21 +19,62 @@ window.title("Annotation Tool")
 window.geometry("1360x420")
 
 
+#clean up output data from PHON
+df = pd.read_csv(datafile)
 
-#Reading from csv file
-df = pd.read_csv("Alex.csv", header=0)
+# Renaming the columns; getting rid of the ":"s in the header
+df.rename(columns = {'Speaker:Name' :'Speaker'},inplace = True)
+#strip off the dot in "session:name"
+session =  df["Session:Name"].str.split('.', n=1, expand = True)
+session1 =session[0]+ session[1]
+df["Session"] = session1
+
+#child and session information
+child = session[0][0]
+session_name = session[1][0]
+
+# split the Segment column into 'start' and 'end'
+utt_dur = df['Segment'].str.split("-", n =1, expand = True)
+df['start_time'] = utt_dur[0]
+df["end_time"] = utt_dur[1]
+
+
+# Transform the Starting time and End time into seconds
+s_time = df['start_time'].str.split(':', n=1, expand = True)
+df["start_seconds"] = pd.to_numeric(s_time[0])*60+pd.to_numeric(s_time[1])
+e_time = df['end_time'].str.split(":", n=1, expand = True)
+df["end_seconds"] =pd.to_numeric(e_time[0])*60 + pd.to_numeric(e_time[1])
+
+
+# getting rid of the parentheses in "Orthography", save them in a new column 
+
+df["Orthography"] = df["Orthography"].str.replace(r'[\[\]\d]+', '')
+
+
+# Add the previous utterance and the post utterance
+df["pre_utt"] = df.Orthography.shift(1)
+df['pre_speaker'] = df.Speaker.shift(1)
+df["post_starttime"] = df.start_seconds.shift(-1)
+df["post_utt"] = df.Orthography.shift(-1)
+df["post_speaker"] = df.Speaker.shift(-1)
+df["pause_after"] = df["post_starttime"]- df["end_seconds"]
+
 
 speaker = df['Speaker'].values #retrieving speaker info
 orthography = df['Orthography'].values #retrieving orthography info
+record = df["Record #"].values
 
-
+df["SpeechAct"]= [None]*len(df) 
+df["ClauseType"]= [None]*len(df)
+df["Comments"] = [None]*len(df)
+d = df
 
 #creating dict for labeled data (later to be saved to csv result file)
-d = {'Speaker':speaker,
-     'Orthography':orthography, 
-     "SpeechAct": [None] * len(df), 
-     "ClauseType": [None] * len(df), 
-     "Comments": [None] * len(df)}
+# d = {'Speaker':speaker,
+#      'Orthography':orthography, 
+#      "SpeechAct": [None] * len(df), 
+#      "ClauseType": [None] * len(df), 
+#      "Comments": [None] * len(df)}
 
 
 
@@ -141,8 +183,8 @@ def previous_and_next(s):
     #reshowing previous chosen labels
     show_prev_choices()
 
-    
-    result_df = pd.DataFrame.from_dict(d, orient = "index").T
+    result_df = d
+    #result_df = pd.DataFrame.from_dict(d, orient = "index").T
     result_df.to_csv("labeled_data.csv")
     
 
@@ -192,8 +234,8 @@ def go_to():
             #reshowing previous chosen labels
             show_prev_choices()
         
-            
-            result_df = pd.DataFrame.from_dict(d, orient = "index").T
+            result_df = d
+            #result_df = pd.DataFrame.from_dict(d, orient = "index").T
             result_df.to_csv("labeled_data.csv")
             
    

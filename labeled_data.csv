@@ -1,10 +1,10 @@
 ,Session:Name,Record #,Speaker,Orthography,Segment,Notes,situation,Session,start_time,end_time,start_seconds,end_seconds,pre_utt,pre_speaker,post_starttime,post_utt,post_speaker,pause_after,SpeechAct,ClauseType,Comments
-0,Alex.030516,1,Mother,rollerblade now .,000:00.000-000:01.105,,,Alex030516,000:00.000,000:01.105,0.0,1.105,,,1.105,you can play ball or something .,Mother,0.0,Other,Fragment,"
+0,Alex.030516,1,Mother,rollerblade now .,000:00.000-000:01.105,,,Alex030516,000:00.000,000:01.105,0.0,1.105,,,1.105,you can play ball or something .,Mother,0.0,Question,Declarative,"
+
 "
-1,Alex.030516,2,Mother,you can play ball or something .,000:01.105-000:02.167,,no visual,Alex030516,000:01.105,000:02.167,1.105,2.167,rollerblade now .,Mother,2.184,I'll play ball with you .,Mother,0.017000000000000348,Request,Imperative,"
+1,Alex.030516,2,Mother,you can play ball or something .,000:01.105-000:02.167,,no visual,Alex030516,000:01.105,000:02.167,1.105,2.167,rollerblade now .,Mother,2.184,I'll play ball with you .,Mother,0.017000000000000348,Assertion,Declarative,"
 "
-2,Alex.030516,3,Mother,I'll play ball with you .,000:02.184-000:03.228,,,Alex030516,000:02.184,000:03.228,2.184,3.228,you can play ball or something .,Mother,3.51,how <a>bout this one ?,Alex,0.2819999999999996,Request,Imperative,"
-"
+2,Alex.030516,3,Mother,I'll play ball with you .,000:02.184-000:03.228,,,Alex030516,000:02.184,000:03.228,2.184,3.228,you can play ball or something .,Mother,3.51,how <a>bout this one ?,Alex,0.2819999999999996,,,
 3,Alex.030516,4,Alex,how <a>bout this one ?,000:03.510-000:04.548,,,Alex030516,000:03.510,000:04.548,3.51,4.548,I'll play ball with you .,Mother,4.548,Dora ?,Mother,0.0,,,
 4,Alex.030516,5,Mother,Dora ?,000:04.548-000:05.090,,,Alex030516,000:04.548,000:05.090,4.548,5.09,how <a>bout this one ?,Alex,5.337999999999999,yeah .,Alex,0.24799999999999933,,,
 5,Alex.030516,6,Alex,yeah .,000:05.338-000:05.760,,,Alex030516,000:05.338,000:05.760,5.337999999999999,5.76,Dora ?,Mother,5.78,do you want would you like your tee+ball ?,Mother,0.020000000000000462,,,

@@ -8,7 +8,7 @@ datafile = input("Which file are you going to work on? ")
 index = 0
 warning_appeared = False
 
-    
+#list options for each annotation category    
 speechAct_types = ["Question", "Assertion", "Request", "Other"]
 clauseType_types = ["Interrogative", "Declarative", "Imperative", "Fragment", "Other"]
 
@@ -67,7 +67,7 @@ record = df["Record #"].values
 df["SpeechAct"]= [None]*len(df) 
 df["ClauseType"]= [None]*len(df)
 df["Comments"] = [None]*len(df)
-d = df
+d = df.to_dict()
 
 #creating dict for labeled data (later to be saved to csv result file)
 # d = {'Speaker':speaker,
@@ -183,8 +183,7 @@ def previous_and_next(s):
     #reshowing previous chosen labels
     show_prev_choices()
 
-    result_df = d
-    #result_df = pd.DataFrame.from_dict(d, orient = "index").T
+    result_df = pd.DataFrame.from_dict(d, orient = "index").T
     result_df.to_csv("labeled_data.csv")
     
 
@@ -234,8 +233,7 @@ def go_to():
             #reshowing previous chosen labels
             show_prev_choices()
         
-            result_df = d
-            #result_df = pd.DataFrame.from_dict(d, orient = "index").T
+            result_df = pd.DataFrame.from_dict(d, orient = "index").T
             result_df.to_csv("labeled_data.csv")
             
    

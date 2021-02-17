@@ -46,14 +46,17 @@ df["post_speaker"] = df.Speaker.shift(-1)
 df["pause_after"] = df["post_starttime"]- df["end_seconds"]
 
 
+
 speaker = df['Speaker'].values #retrieving speaker info
 orthography = df['Orthography'].values #retrieving orthography info
 record = df["Record #"].values
 
-df["SpeechAct"]= [None]*len(df) 
-df["ClauseType"]= [None]*len(df)
-df["Comments"] = [None]*len(df)
-d = df.to_dict()
+result_df = df
+result_df["SpeechAct"] = [None]*len(result_df)
+result_df["ClauseType"] = [None]*len(result_df)
+result_df["comments"] = [None]*len(result_df)
+
+d = result_df.to_dict()
 
 class simpleapp_tk(tk.Tk):
     def __init__(self,parent):
@@ -61,7 +64,7 @@ class simpleapp_tk(tk.Tk):
         self.parent = parent
         self.index = 0
         
-        self.task = d
+        self.task = df
         self.item = tk.StringVar()
         self.item.set("\n" + str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index])
         
@@ -100,8 +103,8 @@ class simpleapp_tk(tk.Tk):
 
         self.radios=[]
         #buttons; ("label","writing in the coding file")
-        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"),("Other","Other")]
-        clauseTypes = [("Declarative","Declarative"),("Interrogative","Intterogative"),("Imperative","Imperative"),("Fragment","Fragment"), ("Other","Other")]
+        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other","Other")]
+        clauseTypes = [("Declarative","Declarative"),("Interrogative","Intterogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","Other")]
         #build the buttons
         #speechact
         i = 0
@@ -110,7 +113,7 @@ class simpleapp_tk(tk.Tk):
         i+=1
         #renitialize when clicking "next"
         for text,value in speechActs:
-            b = tk.Radiobutton(self,text=text,variable=self.speechact,value=value,indicatoron=0,width=23,height=2,command=self.activate)
+            b = tk.Radiobutton(self,text=text,variable=self.speechact,value=value,indicatoron=0,width=10,height=2,command=self.activate)
             b.grid(column=1,row=i,columnspan=2)
             self.radios.append(b)
             i+=1
@@ -119,7 +122,7 @@ class simpleapp_tk(tk.Tk):
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         i+=1
         for text,value in clauseTypes:
-            b = tk.Radiobutton(self,text=text,variable=self.clausetype,value=value,indicatoron=0,width=23,height=2,command=self.activate)
+            b = tk.Radiobutton(self,text=text,variable=self.clausetype,value=value,indicatoron=0,width=10,height=2,command=self.activate)
             b.grid(column=1,row=i,columnspan=2)
             self.radios.append(b)
             i+=1
@@ -153,11 +156,16 @@ class simpleapp_tk(tk.Tk):
         #self.geometry(self.geometry())       
 
     def OnButtonClick(self,annot):
-        with open(datafile+"-annot.csv","a") as f:
-          #  f.write(self.task[self.index])
-            f.write(self.speechact.get()+","+self.clausetype.get()+",")
-            f.write(self.comment.get())
-            f.write("\n")
+        self.result_df = d
+        self.result_df["SpeechAct"][self.index] =self.speechact.get()
+        self.result_df["ClauseType"][self.index] =self.clausetype.get()
+        self.result_df["comments"][self.index] =self.comment.get()
+        
+        #writing the resulting datafile to .csv file
+        self.results = pd.DataFrame.from_dict(self.result_df, orient= "index").T
+        self.results.to_csv(datafile+"-annot.csv")
+
+        #reset index
         self.index += 1
         self.item.set("\n" + str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index])
         self.progress.set(str(self.index+1)+"/"+str(len(self.task)-1))

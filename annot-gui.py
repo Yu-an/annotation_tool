@@ -58,7 +58,6 @@ result_df["comments"] = [None]*len(result_df)
 
 d = result_df.to_dict()
 
-
 class simpleapp_tk(tk.Tk):
     def __init__(self,parent):
         tk.Tk.__init__(self,parent)
@@ -68,6 +67,12 @@ class simpleapp_tk(tk.Tk):
         self.task = df
         self.item = tk.StringVar()
         self.item.set("\n" + str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index])
+
+        self.DisplayData()
+
+        self.initialize()
+
+    def DisplayData(self):
         
         self.prior = max(0, self.index-20)
         self.post = min(len(self.task), self.index+3)
@@ -85,10 +90,9 @@ class simpleapp_tk(tk.Tk):
             elif i > self.index :
                 self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i]+"\n" , "normal")
         
-
         self.text.configure(state='disabled')
 
-        self.initialize()
+        
   #arrange things; how
     def activate(self):
         if self.speechact.get() and self.clausetype.get():
@@ -182,22 +186,22 @@ class simpleapp_tk(tk.Tk):
         self.text.configure(state='normal')
         self.text.delete(0.0,'end')
 
+        self.DisplayData()
 
-        self.prior = max(0, self.index-20)
-        self.post = min(len(self.task), self.index+3)
-        #print(self.prior)
-        #print(self.post)
-        for i in range(self.prior, self.post):
-            if i < self.index:
-                self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i] +"\n", "normal")
-            elif i == self.index:
-                self.text.insert("end", str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index]+"\n", "bold")
-            else:
-                self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i] +"\n", "normal")
+        # self.prior = max(0, self.index-20)
+        # self.post = min(len(self.task), self.index+3)
+        # #print(self.prior)
+        # #print(self.post)
+        # for i in range(self.prior, self.post):
+        #     if i < self.index:
+        #         self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i] +"\n", "normal")
+        #     elif i == self.index:
+        #         self.text.insert("end", str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index]+"\n", "bold")
+        #     else:
+        #         self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i] +"\n", "normal")
         
-        ShowExistingChoice()
 
-        self.text.configure(state='disabled')
+        # self.text.configure(state='disabled')
         self.comment.set("")
         self.button_next.configure(state="disabled")
         for b in self.radios:

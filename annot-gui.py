@@ -58,6 +58,7 @@ result_df["comments"] = [None]*len(result_df)
 
 d = result_df.to_dict()
 
+
 class simpleapp_tk(tk.Tk):
     def __init__(self,parent):
         tk.Tk.__init__(self,parent)
@@ -96,6 +97,7 @@ class simpleapp_tk(tk.Tk):
     def initialize(self):
         self.grid()
 
+        #initialize
         self.clausetype = tk.StringVar()
         self.clausetype.set("")
         self.speechact = tk.StringVar()
@@ -132,6 +134,8 @@ class simpleapp_tk(tk.Tk):
         label = tk.Label(self,textvariable=self.progress)
         label.grid(column=2,row=i+3,sticky="s")
 
+
+        #next button
         self.button_next = tk.Button(self,text=u"Next",
                 command = lambda: self.OnButtonClick("next"))
 
@@ -139,6 +143,9 @@ class simpleapp_tk(tk.Tk):
         self.button_next.grid(column=1,row=i+3)
         self.button_next.configure(state="disabled")
 
+
+
+        #exit button
         button_exit = tk.Button(self,text=u"Exit",
                                 command=self.quit)
         button_exit.grid(column=0,row=i+3)
@@ -154,13 +161,15 @@ class simpleapp_tk(tk.Tk):
         self.resizable(True,True)
         self.update()
         #self.geometry(self.geometry())       
-
+    
+ 
     def OnButtonClick(self,annot):
         self.result_df = d
         self.result_df["SpeechAct"][self.index] =self.speechact.get()
         self.result_df["ClauseType"][self.index] =self.clausetype.get()
         self.result_df["comments"][self.index] =self.comment.get()
         
+
         #writing the resulting datafile to .csv file
         self.results = pd.DataFrame.from_dict(self.result_df, orient= "index").T
         self.results.to_csv(datafile+"-annot.csv")
@@ -186,13 +195,13 @@ class simpleapp_tk(tk.Tk):
             else:
                 self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i] +"\n", "normal")
         
+        ShowExistingChoice()
 
         self.text.configure(state='disabled')
         self.comment.set("")
         self.button_next.configure(state="disabled")
         for b in self.radios:
             b.deselect()
-
 
 if __name__=="__main__":
     app = simpleapp_tk(None)

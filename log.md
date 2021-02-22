@@ -18,3 +18,8 @@ YY Feb 17
 6. see if there is a way to read from the annotated file
 7. make the "next" bigger, and away from the coding
 8. make sure the coding text is the same as JA's coding (fixed)
+
+
+YY Feb 19
+1. subcategories of questions/interrogatives
+2. 

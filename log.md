@@ -12,14 +12,17 @@ YY Feb 17
 1. the progress bar is wrong (fixed)
 2. the layout is still awful, buttons are too big! same category maybe have the same bg color?? (partially fixed, layout still not great)
 3. the output format (fixed)
-4. the go-to function is gone now
+4. the go-to function is gone now 
 5. "previous" is gone (no need)
-6. if coded, then shown as button_click
-6. see if there is a way to read from the annotated file
-7. make the "next" bigger, and away from the coding
+6. if coded, then shown as button_click (partially done)
+6. see if there is a way to read from the annotated file (fixed)
+7. make the "next" bigger, and away from the coding (no need)
 8. make sure the coding text is the same as JA's coding (fixed)
 
 
 YY Feb 19
 1. subcategories of questions/interrogatives
-2. 
+2. the first item "next" not working
+3. make a list of all the annotating categories
+4. which directory to work on? (not important)
+5. the go-to function is gone now 

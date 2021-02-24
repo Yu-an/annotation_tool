@@ -64,7 +64,6 @@ class simpleapp_tk(tk.Tk):
             self.speechact.set(self.result_df["SpeechAct"][self.index])
         # if self.result_df["comments"][self.index] != None:
         #     self.comment.set(self.result_df["comments"][self.index])
-
   #arrange things; how
     # def activate(self):
     #     print("activated")
@@ -80,6 +79,7 @@ class simpleapp_tk(tk.Tk):
         speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other","Other")]
         clauseTypes = [("Declarative","Declarative"),("Interrogative","Intterogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","Other")]
         
+
         #initialize
         self.clausetype= tk.StringVar()
         self.speechact= tk.StringVar()
@@ -88,16 +88,18 @@ class simpleapp_tk(tk.Tk):
         #build the buttons
         #speechact
         i = 0
+        #label the category
         label = tk.Label(self,text="Speech Act")
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         i+=1
-
+        #build buttons for speech act
         for text,value in speechActs:
             b = tk.Radiobutton(self,text=text,variable=self.speechact,value=value,indicatoron=0,width=10,height=2)
             b.grid(column=1,row=i,columnspan=2)
             self.radios.append(b)
             i+=1
 
+        #setup the buttons for clause type
         label = tk.Label(self,text="Clause Type")
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         i+=1
@@ -107,13 +109,19 @@ class simpleapp_tk(tk.Tk):
             self.radios.append(b)
             i+=1
 
+
+
+        ###############################
+        if self.result_df["SpeechAct"][self.index] == "Question":
+            #self.speechact.get() == "Question" or 
+            self.SubQuestions()
+##########################################
+
+        #progress bar        
         label = tk.Label(self,textvariable=self.progress)
         label.grid(column=2,row=i+5,sticky="s")
-
-
+        #text grid
         self.text.grid(column=0,row=0, rowspan=i+2)
-
-
         #comment button
         self.comment = tk.StringVar()
         self.comment.set("")
@@ -156,10 +164,25 @@ class simpleapp_tk(tk.Tk):
                                 command=lambda: self.Quit())
         button_exit.grid(column=0,row=i+3)
 
-
+        #set everything in place
         self.grid_columnconfigure(0,weight=1)
         self.resizable(True,True)
         self.update()
+
+
+    def SubQuestions(self):
+        subQuestions = ["PedagogicalGeneric", "PedagogicalSpecific", "InfoSeeking", "CheckStatus", "Clarification", "Permission", "SpecificInfo", "Commands", "Attention"]
+        subInt = ["Polar", "wh", "Disjunctive"]
+        i = 0
+        self.subQ = tk.StringVar()
+        label = tk.Label(self, text = "Subtypes of Questions")
+        label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
+        i += 1
+        for text in subQuestions:
+            b = tk.Radiobutton(self, text=text, variable =self.subQ, value = text, indicatoron = 0, width=23,height=2)
+            b.grid(column=2, row = i, columnspan=2)
+            self.radios.append(b)
+            i += 1
 
     #record the button click to results_df
     def dfResults(self):
@@ -176,7 +199,7 @@ class simpleapp_tk(tk.Tk):
         #setup next item
         self.DisplayData()
         #set the value for the next item; if already annotated, show value, if not, reset
-        self.comment.set("")
+        #self.comment.set("")
         self.button_next.configure(state="normal")
         for b in self.radios:
             b.deselect()

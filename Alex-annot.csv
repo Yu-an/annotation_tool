@@ -1,6 +1,6 @@
 Session:Name,Record #,Speaker,Orthography,Segment,Notes,situation,Session,start_time,end_time,start_seconds,end_seconds,pre_utt,pre_speaker,post_starttime,post_utt,post_speaker,pause_after,SpeechAct,ClauseType,comments
-Alex.030516,1.0,Mother,rollerblade now .,000:00.000-000:01.105,,,Alex030516,000:00.000,000:01.105,0.0,1.105,,,1.105,you can play ball or something .,Mother,0.0,Assertion,Declarative,
-Alex.030516,2.0,Mother,you can play ball or something .,000:01.105-000:02.167,,no visual,Alex030516,000:01.105,000:02.167,1.105,2.167,rollerblade now .,Mother,2.184,I'll play ball with you .,Mother,0.017000000000000348,Assertion,Imperative,
+Alex.030516,1.0,Mother,rollerblade now .,000:00.000-000:01.105,,,Alex030516,000:00.000,000:01.105,0.0,1.105,,,1.105,you can play ball or something .,Mother,0.0,Question,Declarative,
+Alex.030516,2.0,Mother,you can play ball or something .,000:01.105-000:02.167,,no visual,Alex030516,000:01.105,000:02.167,1.105,2.167,rollerblade now .,Mother,2.184,I'll play ball with you .,Mother,0.017000000000000348,Question,Intterogative,
 Alex.030516,3.0,Mother,I'll play ball with you .,000:02.184-000:03.228,,,Alex030516,000:02.184,000:03.228,2.184,3.228,you can play ball or something .,Mother,3.51,how <a>bout this one ?,Alex,0.2819999999999996,Assertion,Declarative,
 Alex.030516,4.0,Alex,how <a>bout this one ?,000:03.510-000:04.548,,,Alex030516,000:03.510,000:04.548,3.51,4.548,I'll play ball with you .,Mother,4.548,Dora ?,Mother,0.0,Assertion,Declarative,
 Alex.030516,5.0,Mother,Dora ?,000:04.548-000:05.090,,,Alex030516,000:04.548,000:05.090,4.548,5.09,how <a>bout this one ?,Alex,5.337999999999999,yeah .,Alex,0.2479999999999993,Question,FRAG,

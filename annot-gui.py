@@ -33,7 +33,7 @@ class simpleapp_tk(tk.Tk):
 
     def DisplayData(self):
 
-        self.progress.set(str(self.index+1)+"/"+str(len(self.task)-1))
+        self.progress.set(str(self.index+1)+"/"+str(len(self.task)))
         self.item.set("\n" + str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index])
 
         self.text.configure(state='normal')
@@ -62,8 +62,11 @@ class simpleapp_tk(tk.Tk):
             self.clausetype.set(self.result_df["ClauseType"][self.index])
         if self.result_df["SpeechAct"][self.index] != None:
             self.speechact.set(self.result_df["SpeechAct"][self.index])
-        # if self.result_df["comments"][self.index] != None:
-        #     self.comment.set(self.result_df["comments"][self.index])
+        if self.result_df["comments"][self.index] != None:
+            if self.result_df["comments"][self.index] != "nan" and self.result_df["comments"][self.index] !="NaN":
+                self.comment.set(self.result_df["comments"][self.index])
+            else:
+                self.comment.set("")
   #arrange things; how
     # def activate(self):
     #     print("activated")
@@ -83,6 +86,8 @@ class simpleapp_tk(tk.Tk):
         #initialize
         self.clausetype= tk.StringVar()
         self.speechact= tk.StringVar()
+        self.comment = tk.StringVar()
+        #self.comment.set("")
 
         self.ShowExisting()
         #build the buttons
@@ -123,8 +128,6 @@ class simpleapp_tk(tk.Tk):
         #text grid
         self.text.grid(column=0,row=0, rowspan=i+2)
         #comment button
-        self.comment = tk.StringVar()
-        self.comment.set("")
         self.entry = tk.Entry(self,textvariable=self.comment)
         self.entry.grid(column=1,row=i+1,sticky="n",columnspan=2)
         label = tk.Label(self,text="Comment (optional):")
@@ -138,7 +141,7 @@ class simpleapp_tk(tk.Tk):
 
         #next button, record results to df and reinitialize
         self.button_next = tk.Button(self,text=u"Next",
-                command = lambda: self.OnButtonClick())
+                command = lambda: self.NextItem())
         self.button_next.grid(column=2,row=i+3)
         self.button_next.configure(state="normal")
 
@@ -179,11 +182,23 @@ class simpleapp_tk(tk.Tk):
         label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subQuestions:
-            b = tk.Radiobutton(self, text=text, variable =self.subQ, value = text, indicatoron = 0, width=23,height=2)
-            b.grid(column=2, row = i, columnspan=2)
+            b = tk.Radiobutton(self, text=text, variable =self.subQ, value = text, indicatoron = 0, width=15,height=1)
+            b.grid(column=3, row = i, columnspan=1)
             self.radios.append(b)
             i += 1
 
+    def SubInt(self):
+        subInt = ["Polar", "wh", "Disjunctive"]
+        i = 0
+        self.subI = tk.StringVar()
+        label = tk.Label(self, text = "Subtypes of Interrogatives")
+        label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
+        i += 1
+        for text in subInt:
+            b = tk.Radiobutton(self, text=text, variable =self.subI, value = text, indicatoron = 0, width=15,height=1)
+            b.grid(column=3, row = i, columnspan=1)
+            self.radios.append(b)
+            i += 1   
     #record the button click to results_df
     def dfResults(self):
         #write in the data
@@ -192,14 +207,19 @@ class simpleapp_tk(tk.Tk):
         self.result_df["comments"][self.index] =self.comment.get()
     
     #click on next to write results to results_df and reinitialize
-    def OnButtonClick(self):
+    def NextItem(self):
         self.dfResults()
         #reset index
-        self.index += 1
+        #do not let index exeeds the length of the transcript
+        if self.index +1 > len(orthography)-1:
+            self.index = len(orthography)-1
+        else:
+            self.index += 1
+
         #setup next item
         self.DisplayData()
         #set the value for the next item; if already annotated, show value, if not, reset
-        #self.comment.set("")
+        self.comment.set("")
         self.button_next.configure(state="normal")
         for b in self.radios:
             b.deselect()
@@ -207,15 +227,12 @@ class simpleapp_tk(tk.Tk):
 
     
     def Goto(self,num):
-        # #check if user_input is a number
-        # if num.isdigit() == False:
-        #     tk.messagebox.showwarning("Warning", "Please input a number")
-        # else:           
-        #     go_to_num = int(num)
-        #     #check if number is out of range
-        #     if go_to_num > len(orthography):
-        #         tk.messagebox.showwarning("Warning", "Number out of range!")
-        self.index = int(num)-1
+        if int(num) < 1:
+            self.index = 0
+        elif int(num)>len(orthography):
+            self.index = len(orthography)-1
+        else:
+            self.index = int(num)-1
         self.DisplayData()
         self.ShowExisting()
 

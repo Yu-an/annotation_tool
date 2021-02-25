@@ -47,3 +47,6 @@ Feb 25
 3. the subcategories of questions need double triple check!!!!!
 4. VERY IMPORTANT: If you want to add a category, need to add it in the following places:
 **ShowExisting, initialize (initialize attributes), dfResults, at the bottom when initializing results_df**
+5. (you can click on the choice...still not great) subquestions are disabled when Claustype is not interrogative 
+6. is there a way to mark where you stopped last time? A button?
+7. Layout is still ugly.

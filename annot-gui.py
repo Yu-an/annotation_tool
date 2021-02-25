@@ -86,7 +86,7 @@ class simpleapp_tk(tk.Tk):
         self.comment = tk.StringVar()
         self.subQ = tk.StringVar()
         self.subI = tk.StringVar()
-        self.followup = tk.String()
+        self.followup = tk.StringVar()
         #check if there it's already coded
 
         ##############################################################
@@ -126,12 +126,9 @@ class simpleapp_tk(tk.Tk):
 
         #Followup Button: is the current utt a follou up of the previous utt?
         self.button_follow = tk.Checkbutton(self, text="Follow up?", 
-            indicatoron=0, variable = self.followup, width=15,height=3)
+            indicatoron=0, variable = self.followup, width=15,height=3, 
+            command=lambda:self.FollowUps())
         self.button_follow.grid(column=1,row=i,columnspan=2)
-        if self.index == 0:
-            self.button_follow.config(state="disabled")
-        else:
-            self.button_follow.config(state="normal")
         self.radios.append(self.button_follow)
         i+=1
 
@@ -204,6 +201,11 @@ class simpleapp_tk(tk.Tk):
         self.grid_columnconfigure(0,weight=1)
         self.resizable(True,True)
         self.update()
+
+    def FollowUps(self):
+        if self.index != 0:
+            self.button_follow.configure(state = "normal")
+            #print(self.followup.get())
 
     #If "Question" or 'interrogative' is selected, then subcategories show up
     def GenerateSubs(self):
@@ -321,7 +323,7 @@ class simpleapp_tk(tk.Tk):
         self.destroy()
 
 if __name__=="__main__":
-    data_dir = "/Users/ceshi/Documents/Work/SpeechAct/EngCorp/scripts/annotation_tool"
+    data_dir = "/data"
     datafile = input("file? ")
     # #set directory
     # dialogue_box = tk.Tk()
@@ -408,7 +410,7 @@ if __name__=="__main__":
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
-        new_col = ["subQ", "subI", "Followup?", "comments"]
+        new_col = ["subQ", "subI", "FollowUp?", "comments"]
         for x in new_col:
             if x not in result_df.columns:
                 result_df[x] = [None]*len(result_df)

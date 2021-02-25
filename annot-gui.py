@@ -23,12 +23,11 @@ class simpleapp_tk(tk.Tk):
 
         self.result_df = d
 
-
         self.DisplayData()
 
         self.initialize()
 
-        #when press x to close window
+        #when press x to close window, save before close
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def DisplayData(self):
@@ -46,7 +45,11 @@ class simpleapp_tk(tk.Tk):
             if i < self.index:
                 self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i] +"\n", "normal")
             elif i == self.index:
-                self.text.insert("end", str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index]+"\n" , "bold")
+                if self.result_df["SpeechAct"][self.index] == "Question":
+                    self.text.insert("end", str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index]+"\n" , "bold")
+                else:
+                    self.text.insert("end", str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index]+"\n" , "italics")
+ 
             elif i > self.index :
                 self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i]+"\n" , "normal")
         
@@ -54,10 +57,6 @@ class simpleapp_tk(tk.Tk):
 
     #if there's existing data, read in and set value
     def ShowExisting(self):
-        # categories = [("clausetype","ClauseType"), ("speechact","SpeechAct"), ("comment","comments")]
-        # for cate, Cate in categories:
-        #     if self.result_df[Cate][self.index] !=None:
-        #         self.cate.set(self.result_df[Cate][self.index])
         if self.result_df["ClauseType"][self.index] != None:
             self.clausetype.set(self.result_df["ClauseType"][self.index])
         if self.result_df["SpeechAct"][self.index] != None:
@@ -67,39 +66,48 @@ class simpleapp_tk(tk.Tk):
                 self.comment.set(self.result_df["comments"][self.index])
             else:
                 self.comment.set("")
-  #arrange things; how
-    # def activate(self):
-    #     print("activated")
-        # if self.speechact.get() and self.clausetype.get():
-        #     self.button_next.configure(state="normal")
-        # if self.result_df["ClauseType"][self.index] != None and self.result_df["SpeechAct"][self.index] != None:
-        #     self.button_next.configure(state="normal")
-
+        if self.result_df["subI"][self.index] != None:
+            self.subI.set(self.result_df["subI"][self.index])
+        if self.result_df["subQ"][self.index] != None:
+            self.subQ.set(self.result_df["subQ"][self.index])
+        if self.result_df["FollowUp?"][self.index] != None:
+            self.followup.set(self.result_df["FollowUp?"][self.index]) 
     def initialize(self):
         self.grid()
         self.radios=[]
         #buttons; ("label","writing in the coding file")
         speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other","Other")]
-        clauseTypes = [("Declarative","Declarative"),("Interrogative","Intterogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","Other")]
+        clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","Other")]
         
 
-        #initialize
+        #initialize attributes; need to come before self.showingexisting() is called
         self.clausetype= tk.StringVar()
         self.speechact= tk.StringVar()
         self.comment = tk.StringVar()
-        #self.comment.set("")
+        self.subQ = tk.StringVar()
+        self.subI = tk.StringVar()
+        self.followup = tk.String()
+        #check if there it's already coded
 
-        self.ShowExisting()
+        ##############################################################
+        ########################################################
+
+
+
         #build the buttons
-        #speechact
+        #set up the row for the buttons
         i = 0
+
+        #speechact buttons
         #label the category
         label = tk.Label(self,text="Speech Act")
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         i+=1
         #build buttons for speech act
         for text,value in speechActs:
-            b = tk.Radiobutton(self,text=text,variable=self.speechact,value=value,indicatoron=0,width=10,height=2)
+            b = tk.Radiobutton(self,text=text,variable=self.speechact,
+                value=value,indicatoron=0,width=10,height=2, 
+                command = lambda:self.GenerateSubs())
             b.grid(column=1,row=i,columnspan=2)
             self.radios.append(b)
             i+=1
@@ -109,33 +117,54 @@ class simpleapp_tk(tk.Tk):
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         i+=1
         for text,value in clauseTypes:
-            b = tk.Radiobutton(self,text=text,variable=self.clausetype,value=value,indicatoron=0,width=10,height=2)
+            b = tk.Radiobutton(self,text=text,variable=self.clausetype,
+                value=value,indicatoron=0,width=10,height=2,
+                command = lambda: self.GenerateSubs())
             b.grid(column=1,row=i,columnspan=2)
             self.radios.append(b)
             i+=1
 
+        #Followup Button: is the current utt a follou up of the previous utt?
+        self.button_follow = tk.Checkbutton(self, text="Follow up?", 
+            indicatoron=0, variable = self.followup, width=15,height=3)
+        self.button_follow.grid(column=1,row=i,columnspan=2)
+        if self.index == 0:
+            self.button_follow.config(state="disabled")
+        else:
+            self.button_follow.config(state="normal")
+        self.radios.append(self.button_follow)
+        i+=1
 
 
-        ###############################
-        if self.result_df["SpeechAct"][self.index] == "Question":
-            #self.speechact.get() == "Question" or 
-            self.SubQuestions()
-##########################################
+        #enable the subcategory buttons 
+        #if the result file has "question" or "interrogative" recorded
+        if self.result_df["SpeechAct"][self.index] != "Question":
+            self.SubQuestions("disabled")
+        elif self.result_df["ClauseType"][self.index] !="Interrogative":
+            self.SubQuestions("disabled")
+        else:
+            self.SubQuestions("normal")
+
 
         #progress bar        
         label = tk.Label(self,textvariable=self.progress)
         label.grid(column=2,row=i+5,sticky="s")
+        
         #text grid
         self.text.grid(column=0,row=0, rowspan=i+2)
+
         #comment button
-        self.entry = tk.Entry(self,textvariable=self.comment)
-        self.entry.grid(column=1,row=i+1,sticky="n",columnspan=2)
-        label = tk.Label(self,text="Comment (optional):")
+        label = tk.Label(self,text="Comments (optional):")
         label.grid(column=1,row=i,sticky="s",columnspan=2)
+        self.entry = tk.Entry(self,textvariable=self.comment,width = 40)
+        self.entry.grid(column=1,row=i+1,sticky="n",columnspan=3)
+
 
         #previous button
+        #use "self.index" as the go to number; Goto function will subtract 1 anyway
+        #save the currect selection
         self.button_prev = tk.Button(self,text=u"Prev",
-                command = lambda: self.Goto(self.index-1))
+                command = lambda: self.Goto(self.index))
         self.button_prev.grid(column=1,row=i+3)
         self.button_prev.configure(state="normal")
 
@@ -147,56 +176,73 @@ class simpleapp_tk(tk.Tk):
 
         #goto button
         num_label = tk.Label(self,text="Go to #:")
-        num_label.grid(column=3,row=i+3,sticky="s")
+        num_label.grid(column=1,row=i+4,sticky="s")
         self.num = tk.StringVar()
         self.num.set("")
-        self.entry_num = tk.Entry(self,textvariable=self.num)
-        self.entry_num.grid(column=4,row=i+3,sticky="n", columnspan=1)
+        self.entry_num = tk.Entry(self,textvariable=self.num, width = 5)
+        self.entry_num.grid(column=2,row=i+4,sticky="n", columnspan=1)
         self.goto_button = tk.Button(self, text=u"now!", 
             command = lambda: self.Goto(self.num.get()))
-        self.goto_button.grid(column=5,row=i+3)
+        self.goto_button.grid(column=3,row=i+4)
         self.goto_button.configure(state="normal")
 
         #save button,save df to csv
-        button_save = tk.Button(self,text=u"Save",
+        self.button_save = tk.Button(self,text=u"Save",
                                 command=lambda: self.Save())
-        button_save.grid(column=0,row=i+2)
+        self.button_save.grid(column=0,row=i+2)
+        self.button_save.configure(state="normal")
 
         #exit button
-        button_exit = tk.Button(self,text=u"Exit",
+        self.button_exit = tk.Button(self,text=u"Exit",
                                 command=lambda: self.Quit())
-        button_exit.grid(column=0,row=i+3)
+        self.button_exit.grid(column=0,row=i+3)
+        self.button_exit.configure(state="normal")
+#############################
+        self.ShowExisting()
 
         #set everything in place
         self.grid_columnconfigure(0,weight=1)
         self.resizable(True,True)
         self.update()
 
-
-    def SubQuestions(self):
-        subQuestions = ["PedagogicalGeneric", "PedagogicalSpecific", "InfoSeeking", "CheckStatus", "Clarification", "Permission", "SpecificInfo", "Commands", "Attention"]
-        subInt = ["Polar", "wh", "Disjunctive"]
+    #If "Question" or 'interrogative' is selected, then subcategories show up
+    def GenerateSubs(self):
+        if self.speechact.get() == "Question":
+            self.SubQuestions("normal")
+        elif self.clausetype.get() == "Interrogative":
+            self.SubQuestions("normal")
+        elif self.result_df["SpeechAct"][self.index] =="Question":
+            self.SubQuestions("normal")
+        elif self.result_df["ClauseType"][self.index] =="Interrogative":
+            self.SubQuestions("normal")
+        else:
+            self.SubQuestions("disabled")
+    #subcategory buttons
+    def SubQuestions(self, status):
+        subQuestions = ["PedagogicalGeneric", "PedagogicalSpecific", "SpecificInfo", "CheckStatus", "Clarification", "Permission", "Commands", "Attention"]
         i = 0
-        self.subQ = tk.StringVar()
         label = tk.Label(self, text = "Subtypes of Questions")
         label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
+        label.configure(state = status)
         i += 1
         for text in subQuestions:
-            b = tk.Radiobutton(self, text=text, variable =self.subQ, value = text, indicatoron = 0, width=15,height=1)
+            b = tk.Radiobutton(self, text=text, variable =self.subQ, 
+                value = text, indicatoron = 0, width=15,height=1)
             b.grid(column=3, row = i, columnspan=1)
+            b.configure(state=status)
             self.radios.append(b)
             i += 1
-
-    def SubInt(self):
-        subInt = ["Polar", "wh", "Disjunctive"]
-        i = 0
-        self.subI = tk.StringVar()
+    #def SubInt(self):
+        subInt = ["Polar", "Wh", "Disjunctive"]
         label = tk.Label(self, text = "Subtypes of Interrogatives")
         label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
+        label.configure(state = status)
         i += 1
         for text in subInt:
-            b = tk.Radiobutton(self, text=text, variable =self.subI, value = text, indicatoron = 0, width=15,height=1)
+            b = tk.Radiobutton(self, text=text, variable =self.subI, 
+                value = text, indicatoron = 0, width=15,height=1)
             b.grid(column=3, row = i, columnspan=1)
+            b.configure(state=status)
             self.radios.append(b)
             i += 1   
     #record the button click to results_df
@@ -205,7 +251,10 @@ class simpleapp_tk(tk.Tk):
         self.result_df["SpeechAct"][self.index] =self.speechact.get()
         self.result_df["ClauseType"][self.index] =self.clausetype.get()
         self.result_df["comments"][self.index] =self.comment.get()
-    
+        self.result_df["subI"][self.index] =self.subI.get()
+        self.result_df["subQ"][self.index] =self.subQ.get()
+        self.result_df["FollowUp?"][self.index] =self.followup.get()
+
     #click on next to write results to results_df and reinitialize
     def NextItem(self):
         self.dfResults()
@@ -224,9 +273,17 @@ class simpleapp_tk(tk.Tk):
         for b in self.radios:
             b.deselect()
         self.ShowExisting()
+        #enable subcategories if the result file has "question" or "interrogative" recorded
+        if self.result_df["SpeechAct"][self.index] != "Question":
+            self.SubQuestions("disabled")
+        elif self.result_df["ClauseType"][self.index] !="Interrogative":
+            self.SubQuestions("disabled")
+        else:
+            self.SubQuestions("normal")
 
-    
+    #save currect selection, jump to the Record number given
     def Goto(self,num):
+        self.dfResults()
         if int(num) < 1:
             self.index = 0
         elif int(num)>len(orthography):
@@ -236,7 +293,13 @@ class simpleapp_tk(tk.Tk):
         self.DisplayData()
         self.ShowExisting()
 
-
+        #enable subcategories if the result file has "question" or "interrogative" recorded
+        if self.result_df["SpeechAct"][self.index] != "Question":
+            self.SubQuestions("disabled")
+        elif self.result_df["ClauseType"][self.index] !="Interrogative":
+            self.SubQuestions("disabled")
+        else:
+            self.SubQuestions("normal")
 
     #click on quit to write currect selection to df, and save df to csv file
     def Save(self):
@@ -345,11 +408,18 @@ if __name__=="__main__":
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
+        new_col = ["subQ", "subI", "Followup?", "comments"]
+        for x in new_col:
+            if x not in result_df.columns:
+                result_df[x] = [None]*len(result_df)
     else:
         result_df = df
         result_df["SpeechAct"] = [None]*len(result_df)
         result_df["ClauseType"] = [None]*len(result_df)
         result_df["comments"] = [None]*len(result_df)
+        result_df["subI"] = [None]*len(result_df)
+        result_df["subQ"] = [None]*len(result_df)
+        result_df["FollowUp?"] = [None]*len(result_df)
 
     d = result_df.to_dict()
 

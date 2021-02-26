@@ -61,17 +61,18 @@ class simpleapp_tk(tk.Tk):
             self.clausetype.set(self.result_df["ClauseType"][self.index])
         if self.result_df["SpeechAct"][self.index] != None:
             self.speechact.set(self.result_df["SpeechAct"][self.index])
-        if self.result_df["comments"][self.index] != None:
-            if self.result_df["comments"][self.index] != "nan" and self.result_df["comments"][self.index] !="NaN":
+        if self.result_df["Comments"][self.index] != None:
+            if self.result_df["Comments"][self.index] != "nan" and self.result_df["comments"][self.index] !="NaN":
                 self.comment.set(self.result_df["comments"][self.index])
             else:
                 self.comment.set("")
-        if self.result_df["subI"][self.index] != None:
+        if self.result_df["SubI"][self.index] != None:
             self.subI.set(self.result_df["subI"][self.index])
-        if self.result_df["subQ"][self.index] != None:
+        if self.result_df["SubQ"][self.index] != None:
             self.subQ.set(self.result_df["subQ"][self.index])
         if self.result_df["FollowUp?"][self.index] != None:
             self.followup.set(self.result_df["FollowUp?"][self.index]) 
+
     def initialize(self):
         self.grid()
         self.radios=[]
@@ -91,7 +92,8 @@ class simpleapp_tk(tk.Tk):
 
         ##############################################################
         ########################################################
-
+#############################
+        self.ShowExisting()
 
 
         #build the buttons
@@ -194,8 +196,7 @@ class simpleapp_tk(tk.Tk):
                                 command=lambda: self.Quit())
         self.button_exit.grid(column=0,row=i+3)
         self.button_exit.configure(state="normal")
-#############################
-        self.ShowExisting()
+
 
         #set everything in place
         self.grid_columnconfigure(0,weight=1)
@@ -252,9 +253,9 @@ class simpleapp_tk(tk.Tk):
         #write in the data
         self.result_df["SpeechAct"][self.index] =self.speechact.get()
         self.result_df["ClauseType"][self.index] =self.clausetype.get()
-        self.result_df["comments"][self.index] =self.comment.get()
-        self.result_df["subI"][self.index] =self.subI.get()
-        self.result_df["subQ"][self.index] =self.subQ.get()
+        self.result_df["Comments"][self.index] =self.comment.get()
+        self.result_df["SubI"][self.index] =self.subI.get()
+        self.result_df["SubQ"][self.index] =self.subQ.get()
         self.result_df["FollowUp?"][self.index] =self.followup.get()
 
     #click on next to write results to results_df and reinitialize
@@ -308,7 +309,7 @@ class simpleapp_tk(tk.Tk):
         self.dfResults()
         #writing the resulting datafile to .csv file
         self.results = pd.DataFrame.from_dict(self.result_df, orient= "index").T
-        self.results.to_csv(datafile+"-annot.csv", index = False)   
+        self.results.to_csv(data_dir+"/"+datafile+"-annot.csv", index = False)   
 
     #save and quit    
     def Quit(self):
@@ -323,24 +324,8 @@ class simpleapp_tk(tk.Tk):
         self.destroy()
 
 if __name__=="__main__":
-    data_dir = "/data"
+    data_dir = "./data"
     datafile = input("file? ")
-    # #set directory
-    # dialogue_box = tk.Tk()
-    # data_dir = ""
-    # dirname = tk.StringVar()
-    # tk.Label(dialogue_box, text="Which directory?").pack()
-    # entry = tk.Entry(dialogue_box, textvariable=dirname)
-    # entry.pack()
-    # #set the cursor in the entry box
-    # entry.focus_set()
-    # #close tk with button
-    # tk.Button(dialogue_box, command=lambda: dialogue_box.destroy(), text='Ok',).pack()
-    # #also ok with "return" key
-    # dialogue_box.bind("<Return>",lambda event: dialogue_box.destroy())
-    # dialogue_box.mainloop()
-    # data_dir = dirname.get()
-
 
     # #set file
     # dialogue_box = tk.Tk()
@@ -363,6 +348,7 @@ if __name__=="__main__":
 
     #clean up output data from PHON
     df = pd.read_csv(data_dir+"/"+datafile+".csv")
+    df = df.fillna("")
 
     # Renaming the columns; getting rid of the ":"s in the header
     df.rename(columns = {'Speaker:Name' :'Speaker'},inplace = True)
@@ -373,6 +359,7 @@ if __name__=="__main__":
 
     #child and session information
     child = session[0][0]
+    df["Child"] = child
     session_name = session[1][0]
 
     # split the Segment column into 'start' and 'end'
@@ -390,27 +377,21 @@ if __name__=="__main__":
 
     # getting rid of the parentheses in "Orthography", save them in a new column 
 
-    df["Orthography"] = df["Orthography"].str.replace(r'[\[\]\d]+', '')
+    df["Orthography"] = df["Orthography"].str.replace(r'[\[\]\d]+', '', regex = True)
+
+    #combine "Situation and Notes" into "Comments"
+    df["Comments"] = df["Notes"] +df["situation"]
+    df=df[["Record #", "Speaker", "Orthography", "Child", "start_seconds", "end_seconds",'Comments' ]]
 
 
-    # Add the previous utterance and the post utterance
-    df["pre_utt"] = df.Orthography.shift(1)
-    df['pre_speaker'] = df.Speaker.shift(1)
-    df["post_starttime"] = df.start_seconds.shift(-1)
-    df["post_utt"] = df.Orthography.shift(-1)
-    df["post_speaker"] = df.Speaker.shift(-1)
-    df["pause_after"] = df["post_starttime"]- df["end_seconds"]
-
-
-
-    speaker = df['Speaker'].values #retrieving speaker info
-    orthography = df['Orthography'].values #retrieving orthography info
-    record = df["Record #"].values
+    # speaker = df['Speaker'].values #retrieving speaker info
+    # orthography = df['Orthography'].values #retrieving orthography info
+    # record = df["Record #"].values
 
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
-        new_col = ["subQ", "subI", "FollowUp?", "comments"]
+        new_col = ["SubQ", "SubI", "FollowUp?", "Comments"]
         for x in new_col:
             if x not in result_df.columns:
                 result_df[x] = [None]*len(result_df)
@@ -418,9 +399,9 @@ if __name__=="__main__":
         result_df = df
         result_df["SpeechAct"] = [None]*len(result_df)
         result_df["ClauseType"] = [None]*len(result_df)
-        result_df["comments"] = [None]*len(result_df)
-        result_df["subI"] = [None]*len(result_df)
-        result_df["subQ"] = [None]*len(result_df)
+        result_df["Comments"] = [None]*len(result_df)
+        result_df["SubI"] = [None]*len(result_df)
+        result_df["SubQ"] = [None]*len(result_df)
         result_df["FollowUp?"] = [None]*len(result_df)
 
     d = result_df.to_dict()

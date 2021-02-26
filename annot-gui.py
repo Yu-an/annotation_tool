@@ -10,18 +10,26 @@ class simpleapp_tk(tk.Tk):
         tk.Tk.__init__(self,parent)
         self.parent = parent
         self.index = 0
-        
+            # speaker = df['Speaker'].values #retrieving speaker info
+    # orthography = df['Orthography'].values #retrieving orthography info
+    # record = df["Record #"].values
         self.task = df
-        self.item = tk.StringVar()
+        self.result_df = d
 
+        self.speaker = self.task["Speaker"]
+        self.orthography = self.task["Orthography"]
+        self.record = self.task["Record #"]
+
+        #intialize item attribute
+        self.item = tk.StringVar()
+        #viewbox style
         self.text = tk.Text(self,height=35)
-        self.text.tag_configure("bold", font=("Arial", 12, "bold"), background="#5FFB17")
-        self.text.tag_configure("italics", font=("Arial", 12, "italic"), background="#FFDB58")
-        self.text.tag_configure("normal", font = ("Arial", 12))
+        self.text.tag_configure("bold", font=("Arial", 14, "bold"), background="#5FFB17")
+        self.text.tag_configure("italics", font=("Arial", 14, "italic"), background="#FFDB58")
+        self.text.tag_configure("normal", font = ("Arial", 14))
 
         self.progress = tk.StringVar()
 
-        self.result_df = d
 
         self.DisplayData()
 
@@ -32,26 +40,26 @@ class simpleapp_tk(tk.Tk):
 
     def DisplayData(self):
 
-        self.progress.set(str(self.index+1)+"/"+str(len(self.task)))
-        self.item.set("\n" + str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index])
+        self.progress.set(str(self.index+1)+"/"+str(len(self.record)))
+        self.item.set("\n" + str(self.index) + ". " + self.record[self.index] + ": " + self.orthography[self.index])
 
         self.text.configure(state='normal')
         self.text.delete(0.0,'end')
         
         self.prior = max(0, self.index-20)
-        self.post = min(len(self.task), self.index+3)
+        self.post = min(len(self.record), self.index+3)
 
         for i in range(self.prior, self.post):
             if i < self.index:
-                self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i] +"\n", "normal")
+                self.text.insert("end", str(self.record[i]) + ". " + self.speaker[i] + ": " + self.orthography[i] +"\n", "normal")
             elif i == self.index:
                 if self.result_df["SpeechAct"][self.index] == "Question":
-                    self.text.insert("end", str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index]+"\n" , "bold")
+                    self.text.insert("end", str(self.record[self.index]) + ". " + self.speaker[self.index] + ": " + self.orthography[self.index]+"\n" , "bold")
                 else:
-                    self.text.insert("end", str(record[self.index]) + ". " + speaker[self.index] + ": " + orthography[self.index]+"\n" , "italics")
+                    self.text.insert("end", str(self.record[self.index]) + ". " + self.speaker[self.index] + ": " + self.orthography[self.index]+"\n" , "italics")
  
             elif i > self.index :
-                self.text.insert("end", str(record[i]) + ". " + speaker[i] + ": " + orthography[i]+"\n" , "normal")
+                self.text.insert("end", str(self.record[i]) + ". " + self.speaker[i] + ": " + self.orthography[i]+"\n" , "normal")
         
         self.text.configure(state='disabled')
 
@@ -62,14 +70,11 @@ class simpleapp_tk(tk.Tk):
         if self.result_df["SpeechAct"][self.index] != None:
             self.speechact.set(self.result_df["SpeechAct"][self.index])
         if self.result_df["Comments"][self.index] != None:
-            if self.result_df["Comments"][self.index] != "nan" and self.result_df["comments"][self.index] !="NaN":
-                self.comment.set(self.result_df["comments"][self.index])
-            else:
-                self.comment.set("")
+            self.comment.set(self.result_df["Comments"][self.index])
         if self.result_df["SubI"][self.index] != None:
-            self.subI.set(self.result_df["subI"][self.index])
+            self.subI.set(self.result_df["SubI"][self.index])
         if self.result_df["SubQ"][self.index] != None:
-            self.subQ.set(self.result_df["subQ"][self.index])
+            self.subQ.set(self.result_df["SubQ"][self.index])
         if self.result_df["FollowUp?"][self.index] != None:
             self.followup.set(self.result_df["FollowUp?"][self.index]) 
 
@@ -89,12 +94,6 @@ class simpleapp_tk(tk.Tk):
         self.subI = tk.StringVar()
         self.followup = tk.StringVar()
         #check if there it's already coded
-
-        ##############################################################
-        ########################################################
-#############################
-        self.ShowExisting()
-
 
         #build the buttons
         #set up the row for the buttons
@@ -197,7 +196,8 @@ class simpleapp_tk(tk.Tk):
         self.button_exit.grid(column=0,row=i+3)
         self.button_exit.configure(state="normal")
 
-
+        #if the catgory has recorded annotation, display previous annotation
+        self.ShowExisting()
         #set everything in place
         self.grid_columnconfigure(0,weight=1)
         self.resizable(True,True)
@@ -206,7 +206,6 @@ class simpleapp_tk(tk.Tk):
     def FollowUps(self):
         if self.index != 0:
             self.button_follow.configure(state = "normal")
-            #print(self.followup.get())
 
     #If "Question" or 'interrogative' is selected, then subcategories show up
     def GenerateSubs(self):
@@ -263,8 +262,8 @@ class simpleapp_tk(tk.Tk):
         self.dfResults()
         #reset index
         #do not let index exeeds the length of the transcript
-        if self.index +1 > len(orthography)-1:
-            self.index = len(orthography)-1
+        if self.index +1 > len(self.record)-1:
+            self.index = len(self.record)-1
         else:
             self.index += 1
 
@@ -289,8 +288,8 @@ class simpleapp_tk(tk.Tk):
         self.dfResults()
         if int(num) < 1:
             self.index = 0
-        elif int(num)>len(orthography):
-            self.index = len(orthography)-1
+        elif int(num)>len(self.record):
+            self.index = len(self.record)-1
         else:
             self.index = int(num)-1
         self.DisplayData()
@@ -383,12 +382,6 @@ if __name__=="__main__":
     df["Comments"] = df["Notes"] +df["situation"]
     df=df[["Record #", "Speaker", "Orthography", "Child", "start_seconds", "end_seconds",'Comments' ]]
 
-
-    # speaker = df['Speaker'].values #retrieving speaker info
-    # orthography = df['Orthography'].values #retrieving orthography info
-    # record = df["Record #"].values
-
-
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
         new_col = ["SubQ", "SubI", "FollowUp?", "Comments"]
@@ -405,7 +398,7 @@ if __name__=="__main__":
         result_df["FollowUp?"] = [None]*len(result_df)
 
     d = result_df.to_dict()
-
+    df = df.to_dict()
 
     app = simpleapp_tk(None)
     app.title("Annotation Tool")

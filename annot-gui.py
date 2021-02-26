@@ -41,7 +41,7 @@ class simpleapp_tk(tk.Tk):
     def DisplayData(self):
 
         self.progress.set(str(self.index+1)+"/"+str(len(self.record)))
-        self.item.set("\n" + str(self.index) + ". " + self.record[self.index] + ": " + self.orthography[self.index])
+        self.item.set("\n" + str(self.record[self.index]) + ". " + self.speaker[self.index] + ": " + self.orthography[self.index])
 
         self.text.configure(state='normal')
         self.text.delete(0.0,'end')
@@ -92,7 +92,7 @@ class simpleapp_tk(tk.Tk):
         self.comment = tk.StringVar()
         self.subQ = tk.StringVar()
         self.subI = tk.StringVar()
-        self.followup = tk.StringVar()
+        self.followup = tk.IntVar()
         #check if there it's already coded
 
         #build the buttons
@@ -127,10 +127,11 @@ class simpleapp_tk(tk.Tk):
 
         #Followup Button: is the current utt a follou up of the previous utt?
         self.button_follow = tk.Checkbutton(self, text="Follow up?", 
-            indicatoron=0, variable = self.followup, width=15,height=3, 
-            command=lambda:self.FollowUps())
+            indicatoron=0, variable = self.followup, width=15,height=3)
         self.button_follow.grid(column=1,row=i,columnspan=2)
         self.radios.append(self.button_follow)
+        if self.index == 0:
+            self.button_follow.configure(state = "disabled")
         i+=1
 
 
@@ -203,10 +204,6 @@ class simpleapp_tk(tk.Tk):
         self.resizable(True,True)
         self.update()
 
-    def FollowUps(self):
-        if self.index != 0:
-            self.button_follow.configure(state = "normal")
-
     #If "Question" or 'interrogative' is selected, then subcategories show up
     def GenerateSubs(self):
         if self.speechact.get() == "Question":
@@ -256,10 +253,13 @@ class simpleapp_tk(tk.Tk):
         self.result_df["SubI"][self.index] =self.subI.get()
         self.result_df["SubQ"][self.index] =self.subQ.get()
         self.result_df["FollowUp?"][self.index] =self.followup.get()
-
+        #self.result_df = self.result_df.fillna("")
     #click on next to write results to results_df and reinitialize
     def NextItem(self):
         self.dfResults()
+###############################        
+        print(self.followup.get())
+##############################        
         #reset index
         #do not let index exeeds the length of the transcript
         if self.index +1 > len(self.record)-1:
@@ -267,13 +267,15 @@ class simpleapp_tk(tk.Tk):
         else:
             self.index += 1
 
-        #setup next item
+        #setup next dataviewbox
         self.DisplayData()
-        #set the value for the next item; if already annotated, show value, if not, reset
         self.comment.set("")
-        self.button_next.configure(state="normal")
+        self.button_follow.configure(state="normal")
+
         for b in self.radios:
             b.deselect()
+                #set the value for the next item; if already annotated, show value, if not, reset
+
         self.ShowExisting()
         #enable subcategories if the result file has "question" or "interrogative" recorded
         if self.result_df["SpeechAct"][self.index] != "Question":
@@ -384,6 +386,8 @@ if __name__=="__main__":
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
+        if "FollowUp?" in result_df.columns:
+            result_df["FollowUp?"] = result_df["FollowUp?"].fillna("0")
         new_col = ["SubQ", "SubI", "FollowUp?", "Comments"]
         for x in new_col:
             if x not in result_df.columns:

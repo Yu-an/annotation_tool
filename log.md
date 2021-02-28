@@ -46,7 +46,19 @@ Feb 25
 2. I moved ShowExisting to the end of initialize, but might still be a problem
 3. the subcategories of questions need double triple check!!!!!
 4. VERY IMPORTANT: If you want to add a category, need to add it in the following places:
-**ShowExisting, initialize (initialize attributes), dfResults, at the bottom when initializing results_df**
+**ShowExisting, initialize (initialize attributes), dfResults, Goto (when resetting everything), datacleanup**
 5. (you can click on the choice...still not great) subquestions are disabled when Claustype is not interrogative 
 6. is there a way to mark where you stopped last time? A button?
-7. Layout is still ugly.
+7. Followup only show up when the first prev is pressed; why?
+8. why does sometimes when you not press "followup" it's "nan" and some other time it's "0"???? <https://stackoverflow.com/questions/43254699/pandas-to-dict-returns-none-mixed-with-nan> says it's probably a problem with pandas and dict conversion. May have to convert everything to dataframe
+-- so I can't use IntVar; the "nan"s are giving me a hard time
+9. (done) I changed the column names from *subI* to *SubI*
+10. (done) first item won't be coded for followup
+
+Feb 27
+1. followup is good again! But still don't know why. May need to go back to the coded files to change things
+2. combined "next" and "goto"
+3.  **need attention** need to have a mechanism where if the subquestions are disabled, the subq buttons reset and the results for sub questions are recorded as NaN. 
+4. **need attention** Frames
+5. **need attention** add more categories (ones that AJ coded at least; but also maybe the here&now, desirable) 
+

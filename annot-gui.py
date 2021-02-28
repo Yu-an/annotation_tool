@@ -69,6 +69,12 @@ class simpleapp_tk(tk.Tk):
             self.clausetype.set(self.result_df["ClauseType"][self.index])
         if self.result_df["SpeechAct"][self.index] != None:
             self.speechact.set(self.result_df["SpeechAct"][self.index])
+        #enable subcategories if the result file has "question" or "interrogative" recorded
+        if self.result_df["SpeechAct"][self.index] == "Question":
+            self.SubQuestions("normal")
+        if self.result_df["ClauseType"][self.index] =="Interrogative":
+            self.SubQuestions("normal")
+
         if self.result_df["Comments"][self.index] != None:
             self.comment.set(self.result_df["Comments"][self.index])
         if self.result_df["SubI"][self.index] != None:
@@ -76,7 +82,7 @@ class simpleapp_tk(tk.Tk):
         if self.result_df["SubQ"][self.index] != None:
             self.subQ.set(self.result_df["SubQ"][self.index])
         if self.result_df["FollowUp?"][self.index] != None:
-            self.followup.set(self.result_df["FollowUp?"][self.index]) 
+            self.followup.set(self.result_df["FollowUp?"][self.index])
 
     def initialize(self):
         self.grid()
@@ -93,7 +99,6 @@ class simpleapp_tk(tk.Tk):
         self.subQ = tk.StringVar()
         self.subI = tk.StringVar()
         self.followup = tk.IntVar()
-        #check if there it's already coded
 
         #build the buttons
         #set up the row for the buttons
@@ -134,16 +139,8 @@ class simpleapp_tk(tk.Tk):
             self.button_follow.configure(state = "disabled")
         i+=1
 
-
-        #enable the subcategory buttons 
-        #if the result file has "question" or "interrogative" recorded
-        if self.result_df["SpeechAct"][self.index] != "Question":
-            self.SubQuestions("disabled")
-        elif self.result_df["ClauseType"][self.index] !="Interrogative":
-            self.SubQuestions("disabled")
-        else:
-            self.SubQuestions("normal")
-
+        #initialize SubQuestions (but disable the buttons)
+        self.SubQuestions("disabled")
 
         #progress bar        
         label = tk.Label(self,textvariable=self.progress)
@@ -169,7 +166,7 @@ class simpleapp_tk(tk.Tk):
 
         #next button, record results to df and reinitialize
         self.button_next = tk.Button(self,text=u"Next",
-                command = lambda: self.NextItem())
+                command = lambda: self.Goto(self.index+2))
         self.button_next.grid(column=2,row=i+3)
         self.button_next.configure(state="normal")
 
@@ -210,12 +207,6 @@ class simpleapp_tk(tk.Tk):
             self.SubQuestions("normal")
         elif self.clausetype.get() == "Interrogative":
             self.SubQuestions("normal")
-        elif self.result_df["SpeechAct"][self.index] =="Question":
-            self.SubQuestions("normal")
-        elif self.result_df["ClauseType"][self.index] =="Interrogative":
-            self.SubQuestions("normal")
-        else:
-            self.SubQuestions("disabled")
     #subcategory buttons
     def SubQuestions(self, status):
         subQuestions = ["PedagogicalGeneric", "PedagogicalSpecific", "SpecificInfo", "CheckStatus", "Clarification", "Permission", "Commands", "Attention"]
@@ -254,56 +245,32 @@ class simpleapp_tk(tk.Tk):
         self.result_df["SubQ"][self.index] =self.subQ.get()
         self.result_df["FollowUp?"][self.index] =self.followup.get()
         #self.result_df = self.result_df.fillna("")
-    #click on next to write results to results_df and reinitialize
-    def NextItem(self):
-        self.dfResults()
-###############################        
-        print(self.followup.get())
-##############################        
-        #reset index
-        #do not let index exeeds the length of the transcript
-        if self.index +1 > len(self.record)-1:
-            self.index = len(self.record)-1
-        else:
-            self.index += 1
-
-        #setup next dataviewbox
-        self.DisplayData()
-        self.comment.set("")
-        self.button_follow.configure(state="normal")
-
-        for b in self.radios:
-            b.deselect()
-                #set the value for the next item; if already annotated, show value, if not, reset
-
-        self.ShowExisting()
-        #enable subcategories if the result file has "question" or "interrogative" recorded
-        if self.result_df["SpeechAct"][self.index] != "Question":
-            self.SubQuestions("disabled")
-        elif self.result_df["ClauseType"][self.index] !="Interrogative":
-            self.SubQuestions("disabled")
-        else:
-            self.SubQuestions("normal")
 
     #save currect selection, jump to the Record number given
     def Goto(self,num):
+        #save
         self.dfResults()
+        #make sure the number doesn't exist 0 to the length of the dataset
         if int(num) < 1:
             self.index = 0
         elif int(num)>len(self.record):
             self.index = len(self.record)-1
         else:
             self.index = int(num)-1
+
+        #setup next dataviewbox
         self.DisplayData()
+
+        #reset buttons, columns
+        self.comment.set("")
+        self.SubQuestions("disabled")
+        self.button_follow.configure(state="normal")
+        for b in self.radios:
+            b.deselect()
+
+        #show existing
         self.ShowExisting()
 
-        #enable subcategories if the result file has "question" or "interrogative" recorded
-        if self.result_df["SpeechAct"][self.index] != "Question":
-            self.SubQuestions("disabled")
-        elif self.result_df["ClauseType"][self.index] !="Interrogative":
-            self.SubQuestions("disabled")
-        else:
-            self.SubQuestions("normal")
 
     #click on quit to write currect selection to df, and save df to csv file
     def Save(self):

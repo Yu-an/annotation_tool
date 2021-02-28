@@ -10,9 +10,7 @@ class simpleapp_tk(tk.Tk):
         tk.Tk.__init__(self,parent)
         self.parent = parent
         self.index = 0
-            # speaker = df['Speaker'].values #retrieving speaker info
-    # orthography = df['Orthography'].values #retrieving orthography info
-    # record = df["Record #"].values
+
         self.task = df
         self.result_df = d
 
@@ -29,7 +27,6 @@ class simpleapp_tk(tk.Tk):
         self.text.tag_configure("normal", font = ("Arial", 14))
 
         self.progress = tk.StringVar()
-
 
         self.DisplayData()
 
@@ -147,6 +144,9 @@ class simpleapp_tk(tk.Tk):
         label.grid(column=2,row=i+5,sticky="s")
         
         #text grid
+####################################################
+        #textgrid right now is the same height as the buttons
+        #will try to embed this under a frame         
         self.text.grid(column=0,row=0, rowspan=i+2)
 
         #comment button
@@ -154,7 +154,6 @@ class simpleapp_tk(tk.Tk):
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         self.entry = tk.Entry(self,textvariable=self.comment,width = 40)
         self.entry.grid(column=1,row=i+1,sticky="n",columnspan=3)
-
 
         #previous button
         #use "self.index" as the go to number; Goto function will subtract 1 anyway
@@ -223,6 +222,7 @@ class simpleapp_tk(tk.Tk):
             self.radios.append(b)
             i += 1
     #def SubInt(self):
+    #not seperated from "subQ" because may include more subcategories like "here&now"
         subInt = ["Polar", "Wh", "Disjunctive"]
         label = tk.Label(self, text = "Subtypes of Interrogatives")
         label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
@@ -257,17 +257,14 @@ class simpleapp_tk(tk.Tk):
             self.index = len(self.record)-1
         else:
             self.index = int(num)-1
-
         #setup next dataviewbox
         self.DisplayData()
-
         #reset buttons, columns
         self.comment.set("")
         self.SubQuestions("disabled")
         self.button_follow.configure(state="normal")
         for b in self.radios:
             b.deselect()
-
         #show existing
         self.ShowExisting()
 
@@ -344,11 +341,12 @@ if __name__=="__main__":
 
 
     # getting rid of the parentheses in "Orthography", save them in a new column 
-
+    # new pandas default for regex will be False, so need to specify
     df["Orthography"] = df["Orthography"].str.replace(r'[\[\]\d]+', '', regex = True)
 
     #combine "Situation and Notes" into "Comments"
     df["Comments"] = df["Notes"] +df["situation"]
+    #reduce the columns of the dataframe
     df=df[["Record #", "Speaker", "Orthography", "Child", "start_seconds", "end_seconds",'Comments' ]]
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):

@@ -80,6 +80,7 @@ class simpleapp_tk(tk.Tk):
             self.subQ.set(self.result_df["SubQ"][self.index])
         if self.result_df["FollowUp?"][self.index] != None:
             self.followup.set(self.result_df["FollowUp?"][self.index])
+            print(self.result_df["FollowUp?"][self.index])
 
     def initialize(self):
         self.grid()
@@ -353,6 +354,7 @@ if __name__=="__main__":
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
         if "FollowUp?" in result_df.columns:
             result_df["FollowUp?"] = result_df["FollowUp?"].fillna("0")
+            result_df["FollowUp?"] = result_df["FollowUp?"].astype("Int64")
         new_col = ["SubQ", "SubI", "FollowUp?", "Comments"]
         for x in new_col:
             if x not in result_df.columns:

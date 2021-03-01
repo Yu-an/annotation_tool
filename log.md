@@ -56,9 +56,17 @@ Feb 25
 10. (done) first item won't be coded for followup
 
 Feb 27
-1. followup is good again! But still don't know why. May need to go back to the coded files to change things
+1. followup is good again! But still don't know why. May need to go back to the coded files to change things 
 2. combined "next" and "goto"
 3.  **need attention** need to have a mechanism where if the subquestions are disabled, the subq buttons reset and the results for sub questions are recorded as NaN. 
-4. **need attention** Frames
+4. (fixed) Frames
 5. **need attention** add more categories (ones that AJ coded at least; but also maybe the here&now, desirable) 
 
+Feb 28
+1. fixed followup by reading in "FollowUp?" as Int64, and fillna("0")
+2. changed layout
+3. Followup Button: I've tried this with other things, but if I switch to another app (window) and switch back, followup button is all of a suddon not greyed out. Might be my laptop's problem
+4. VERY IMPORTANT: If you want to add a category, need to add it in the following places:
+**root (initialize attributes), ShowExisting, initialize, dfResults, Goto (when resetting everything), and previously coded data**
+5. added syntactic features 
+6. **needs attention** regroup some categories, still don't know why sometimes it's NaN, sometimes it's not

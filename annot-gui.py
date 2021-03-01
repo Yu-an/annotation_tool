@@ -20,11 +20,15 @@ class simpleapp_tk(tk.Tk):
 
         #intialize item attribute
         self.item = tk.StringVar()
-        #viewbox style
-        self.text = tk.Text(self,height=35)
+
+#Frame:textbox
+        textFrame = tk.Frame(self)
+        textFrame.grid(column=0, row = 0, rowspan = 25)
+        self.text = tk.Text(textFrame, height=35, bg = "#f1f8e9")
         self.text.tag_configure("bold", font=("Arial", 14, "bold"), background="#5FFB17")
         self.text.tag_configure("italics", font=("Arial", 14, "italic"), background="#FFDB58")
         self.text.tag_configure("normal", font = ("Arial", 14))
+        self.text.grid(column=0, row=0, rowspan = 25)
 
         self.progress = tk.StringVar()
 
@@ -80,7 +84,6 @@ class simpleapp_tk(tk.Tk):
             self.subQ.set(self.result_df["SubQ"][self.index])
         if self.result_df["FollowUp?"][self.index] != None:
             self.followup.set(self.result_df["FollowUp?"][self.index])
-            print(self.result_df["FollowUp?"][self.index])
 
     def initialize(self):
         self.grid()
@@ -140,15 +143,11 @@ class simpleapp_tk(tk.Tk):
         #initialize SubQuestions (but disable the buttons)
         self.SubQuestions("disabled")
 
-        #progress bar        
-        label = tk.Label(self,textvariable=self.progress)
-        label.grid(column=2,row=i+5,sticky="s")
         
-        #text grid
-####################################################
-        #textgrid right now is the same height as the buttons
-        #will try to embed this under a frame         
-        self.text.grid(column=0,row=0, rowspan=i+2)
+# #Frame: texts
+#         #textgrid right now is the same height as the buttons
+#         #will try to embed this under a frame         
+#         self.text.grid(column=0,row=0, rowspan=i+2)
 
         #comment button
         label = tk.Label(self,text="Comments (optional):")
@@ -156,42 +155,50 @@ class simpleapp_tk(tk.Tk):
         self.entry = tk.Entry(self,textvariable=self.comment,width = 40)
         self.entry.grid(column=1,row=i+1,sticky="n",columnspan=3)
 
+#Frame: buttons
+        #Frame placed at the bottom rightcorner
+        bottomFrame = tk.Frame(self)
+        bottomFrame.grid(column = 3, row = 20)
         #previous button
         #use "self.index" as the go to number; Goto function will subtract 1 anyway
         #save the currect selection
-        self.button_prev = tk.Button(self,text=u"Prev",
+        self.button_prev = tk.Button(bottomFrame,text=u"Prev",
                 command = lambda: self.Goto(self.index))
-        self.button_prev.grid(column=1,row=i+3)
+        self.button_prev.grid(column=1,row=1)
         self.button_prev.configure(state="normal")
 
         #next button, record results to df and reinitialize
-        self.button_next = tk.Button(self,text=u"Next",
+        self.button_next = tk.Button(bottomFrame,text=u"Next",
                 command = lambda: self.Goto(self.index+2))
-        self.button_next.grid(column=2,row=i+3)
+        self.button_next.grid(column=2,row=1)
         self.button_next.configure(state="normal")
+        
+        #progress bar        
+        label = tk.Label(bottomFrame,textvariable=self.progress)
+        label.grid(column=3,row=1,sticky="s")
 
         #goto button
-        num_label = tk.Label(self,text="Go to #:")
-        num_label.grid(column=1,row=i+4,sticky="s")
+        num_label = tk.Label(bottomFrame,text="Go to #:")
+        num_label.grid(column=1,row=2,sticky="s")
         self.num = tk.StringVar()
         self.num.set("")
-        self.entry_num = tk.Entry(self,textvariable=self.num, width = 5)
-        self.entry_num.grid(column=2,row=i+4,sticky="n", columnspan=1)
-        self.goto_button = tk.Button(self, text=u"now!", 
+        self.entry_num = tk.Entry(bottomFrame,textvariable=self.num, width = 5)
+        self.entry_num.grid(column=2,row=2,sticky="n", columnspan=1)
+        self.goto_button = tk.Button(bottomFrame, text=u"now!", 
             command = lambda: self.Goto(self.num.get()))
-        self.goto_button.grid(column=3,row=i+4)
+        self.goto_button.grid(column=3,row=2)
         self.goto_button.configure(state="normal")
 
         #save button,save df to csv
-        self.button_save = tk.Button(self,text=u"Save",
+        self.button_save = tk.Button(bottomFrame,text=u"Save",
                                 command=lambda: self.Save())
-        self.button_save.grid(column=0,row=i+2)
+        self.button_save.grid(column=1,row=3)
         self.button_save.configure(state="normal")
 
         #exit button
-        self.button_exit = tk.Button(self,text=u"Exit",
+        self.button_exit = tk.Button(bottomFrame,text=u"Exit",
                                 command=lambda: self.Quit())
-        self.button_exit.grid(column=0,row=i+3)
+        self.button_exit.grid(column=2,row=3)
         self.button_exit.configure(state="normal")
 
         #if the catgory has recorded annotation, display previous annotation

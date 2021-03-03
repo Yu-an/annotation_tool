@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import filedialog
 from os import path
 
 
@@ -86,8 +87,11 @@ class simpleapp_tk(tk.Tk):
         if self.result_df["ClauseType"][self.index] =="Interrogative":
             self.SubQuestions("normal")
 
+        if self.result_df["Situation"][self.index] != None:
+            self.situation.set(self.result_df["Situation"][self.index])
         if self.result_df["Comments"][self.index] != None:
             self.comment.set(self.result_df["Comments"][self.index])
+
         if self.result_df["SubI"][self.index] != None:
             self.subI.set(self.result_df["SubI"][self.index])
         if self.result_df["SubQ"][self.index] != None:
@@ -160,7 +164,7 @@ class simpleapp_tk(tk.Tk):
         discfeatures = {
         #"FollowUp?":[1, "Same topic as the previous utterance?"],
         "HereNow": [1, "Is the event happening here and now?"],
-        "ToAdults?": [1, "Is the utterance directed to the adults?"]
+        "ToAdults?": [1, "Is the utterance adult-to-adult?"]
         }
         #Followup Button: is the current utt a follou up of the previous utt?
         self.button_follow = tk.Checkbutton(discFrame, 
@@ -171,6 +175,7 @@ class simpleapp_tk(tk.Tk):
         if self.index == 0:
             self.button_follow.configure(state = "disabled")
         j = 1 
+        #other buttons
         self.discfeatures = []
         for feature in discfeatures:
             var = tk.IntVar()
@@ -190,13 +195,22 @@ class simpleapp_tk(tk.Tk):
 
 #Frame: optional
         optFrame = tk.Frame(self)
-        optFrame.grid(column = 4, row = i, columnspan = 3)
+        optFrame.grid(column = 4, row = i, columnspan = 4, rowspan =5)
 
+        #situation column
+        self.situation = tk.StringVar()
+        label = tk.Label(optFrame,text="Situation")
+        label.grid(column=1,row=1,sticky="s",columnspan=2)
+        
+        self.entry = tk.Entry(optFrame,textvariable=self.situation,
+            width = 40)
+        self.entry.grid(column=1,row=2,sticky="n",columnspan=3)
+               
         #comment button
         label = tk.Label(optFrame,text="Comments (optional):")
-        label.grid(column=1,row=i,sticky="s",columnspan=2)
+        label.grid(column=1,row=4,sticky="s",columnspan=2)
         self.entry = tk.Entry(optFrame,textvariable=self.comment,width = 40)
-        self.entry.grid(column=1,row=i+1,sticky="n",columnspan=3)
+        self.entry.grid(column=1,row=5,sticky="n",columnspan=3)
 
 #Frame: buttons
         #Frame placed at the bottom rightcorner
@@ -403,27 +417,22 @@ class simpleapp_tk(tk.Tk):
         self.destroy()
 
 if __name__=="__main__":
-    data_dir = "./data"
-    datafile = input("file? ")
-
-    # #set file
-    # dialogue_box = tk.Tk()
-    # datafile = ""
-    # dataname = tk.StringVar()
-    # tk.Label(dialogue_box, text='Which file are you going to work on? (no need to specify the extension)').pack()
-    # entry = tk.Entry(dialogue_box, textvariable=dataname)
-    # entry.pack()
-    # entry.focus_set()
-    # tk.Button(dialogue_box, command=lambda: dialogue_box.destroy(), text='Ok',).pack()
-    # dialogue_box.bind("<Return>",lambda event: dialogue_box.destroy())
-    # dialogue_box.mainloop()
-    # datafile = dataname.get()
-
-    # if data_dir.endswith("/"):
-    #     data_dir = data_dir.strip("/")
-    # if datafile.endswith(".csv"):
-    #     datafile = datafile.rstrip("csv")
-    #     datafile = datafile.strip(".")
+    datafile = ""
+    data_dir = ""
+    #prompt dialogue box, same the name of the file and exit
+    def file_opener():
+        global datafile, data_dir
+        input = filedialog.askopenfile(initialdir=os.getcwd(),title="Open File",
+            filetypes=[("csv files", "*.csv")])
+        datafile = os.path.basename(input.name).split(".")[0]
+        data_dir = os.path.dirname(input.name)
+        dialogue_box.destroy()
+    #dialogue box for file name
+    dialogue_box = tk.Tk()
+    dialogue_box.geometry('150x150')
+    tk.Button(dialogue_box, command=lambda: file_opener(), text='select a file', height = 2, width = 10).pack()
+    dialogue_box.title("Open...")
+    dialogue_box.mainloop()
 
     #clean up output data from PHON
     df = pd.read_csv(data_dir+"/"+datafile+".csv")
@@ -459,10 +468,10 @@ if __name__=="__main__":
     df["Orthography"] = df["Orthography"].str.replace(r'[\[\]\d]+', '', regex = True)
 
     #combine "Situation and Notes" into "Comments"
-    df["Comments"] = df["Notes"] +df["situation"]
+    df["Situation"] = df["Notes"] +df["situation"]
     #reduce the columns of the dataframe
-    df=df[["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Comments' ]]
-
+    df=df[["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation' ]]
+    old_col = ["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation' ]
     new_col = [
     "SpeechAct",
     "ClauseType",
@@ -489,10 +498,10 @@ if __name__=="__main__":
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
+        for x in old_col:
+            result_df[x] =df[x]
         result_df = result_df.fillna("")
-        if "FollowUp?" in result_df.columns:
-            result_df["FollowUp?"] = result_df["FollowUp?"].fillna("0")
-            # result_df["FollowUp?"] = result_df["FollowUp?"].astype("Int64")                   
+                 
     else:
         result_df = df
     for x in new_col:
@@ -501,27 +510,7 @@ if __name__=="__main__":
     for x in int_col:
         if x not in result_df.columns:
             result_df[x] = 0    
-        # result_df["SpeechAct"] = [None]*len(result_df)
-        # result_df["ClauseType"] = [None]*len(result_df)
-        # result_df["Comments"] = [None]*len(result_df)
-        # result_df["SubI"] = [None]*len(result_df)
-        # result_df["SubQ"] = [None]*len(result_df)
-        # result_df["Subject"] = [None]*len(result_df)
-        # result_df["Modal"] = [None]*len(result_df)
-        # result_df["Modal_2"] = [None]*len(result_df)
-        # result_df["S-lifting"] = [None]*len(result_df)
-        # result_df["NEG"] = [None]*len(result_df)        
-        # result_df["DiscourseMarker"] = [None]*len(result_df)
-        # result_df["TagType"] = [None]*len(result_df)
-        # result_df["Q_status"] = [None]*len(result_df)
-        # result_df["EmbeddingVerb"] = [None]*len(result_df)
-        # result_df["MultiEmbedding"] = [None]*len(result_df)        
-        # result_df["PerlocutionaryEffect"] = [None]*len(result_df)        
-        # result_df["Conventionalized"] = [None]*len(result_df)
-        # result_df["Offer?"] = [None]*len(result_df)
-        # result_df["HereNow"] = [None]*len(result_df)
-        # result_df["ToAdults?"] = [None]*len(result_df)
-        # result_df["FollowUp?"] = [None]*len(result_df)
+
 
 
     d = result_df.to_dict()

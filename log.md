@@ -56,17 +56,37 @@ Feb 25
 10. (done) first item won't be coded for followup
 
 Feb 27
-1. followup is good again! But still don't know why. May need to go back to the coded files to change things 
+1. followup is good again! But still don't know why. May need to go back to the coded files to change things
 2. combined "next" and "goto"
 3.  **need attention** need to have a mechanism where if the subquestions are disabled, the subq buttons reset and the results for sub questions are recorded as NaN. 
+<<<<<<< HEAD
 4. (fixed) Frames
-5. **need attention** add more categories (ones that AJ coded at least; but also maybe the here&now, desirable) 
+5. (fixed) add more categories (ones that AJ coded at least; but also maybe the here&now, desirable) 
 
 Feb 28
 1. fixed followup by reading in "FollowUp?" as Int64, and fillna("0")
 2. changed layout
 3. Followup Button: I've tried this with other things, but if I switch to another app (window) and switch back, followup button is all of a suddon not greyed out. Might be my laptop's problem
 4. VERY IMPORTANT: If you want to add a category, need to add it in the following places:
-**root (initialize attributes), ShowExisting, initialize, dfResults, Goto (when resetting everything), and previously coded data**
+**ShowExisting, initialize, dfResults, Goto (when resetting everything), and previously coded data**
 5. added syntactic features 
-6. **needs attention** regroup some categories, still don't know why sometimes it's NaN, sometimes it's not
+6. (fixed!!! by getting rid of NaN at the dataframe level) regroup some categories, still don't know why sometimes it's NaN, sometimes it's not
+
+Mar 1
+1. added discourse features
+2. **needs attention** the updated PHON data is not reading in the result file :/ maybe always have a mechanism to paste updated PHON data in with the resultfile? I'm not sure if there's a good solution.
+3. (fixed) need to have a mechanism where if the subquestions are disabled, the subq buttons reset and the results for sub questions are recorded as NaN.
+4. add a "pointer" to the data that's coded before exit, and read in the last item coded? maybe more trouble than its worth
+5. 
+=======
+4. **need attention** Frames
+5. **need attention** add more categories (ones that AJ coded at least; but also maybe the here&now, desirable) 
+
+>>>>>>> parent of 984f9d8... added synfeatures, reconfig the layout
+
+
+Mar 3
+- screwed up the data intake; had to revert back to Sunday's commit. Turns out I missed a comma...
+- can select data with dialogue
+- **Need Attention** build a repo for data and dataprocessing
+- seperate comment and situation

@@ -18,8 +18,9 @@ class simpleapp_tk(tk.Tk):
         self.orthography = self.task["Orthography"]
         self.record = self.task["Record #"]
 
-        #intialize attributes
+        #intialize item attribute
         self.item = tk.StringVar()
+
         self.progress = tk.StringVar()
         #self.variables = []
         self.clausetype= tk.StringVar()
@@ -27,29 +28,27 @@ class simpleapp_tk(tk.Tk):
         self.comment = tk.StringVar()
         self.subQ = tk.StringVar()
         self.subI = tk.StringVar()
-        self.followup = tk.IntVar()     
+        self.followup = tk.IntVar()
+        #as long as ShowExisting() comes after initialization, it's fine     
 
 #Frame:textbox
         textFrame = tk.Frame(self)
         textFrame.grid(column=0, row = 0, rowspan = 25)
-        #add textbox to the frame
         self.text = tk.Text(textFrame, height=35, bg = "#f1f8e9")
-        #define style
         self.text.tag_configure("bold", font=("Arial", 14, "bold"), background="#5FFB17")
         self.text.tag_configure("italics", font=("Arial", 14, "italic"), background="#FFDB58")
         self.text.tag_configure("normal", font = ("Arial", 14))
-        self.text.grid(column=0, row=0, rowspan = 25)   
+        self.text.grid(column=0, row=0, rowspan = 25)
 
-        #add text to textbox
+        self.progress = tk.StringVar()
+
         self.DisplayData()
 
-        #initialize buttons
         self.initialize()
 
         #when press x to close window, save before close
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-    #add text to textbox; set progressbar number
     def DisplayData(self):
 
         self.progress.set(str(self.index+1)+"/"+str(len(self.record)))
@@ -96,17 +95,33 @@ class simpleapp_tk(tk.Tk):
         if self.result_df["FollowUp?"][self.index] != None:
             self.followup.set(self.result_df["FollowUp?"][self.index])
 
+        for [f,x] in self.synfeatures:
+            if self.result_df[f][self.index] != None:
+                x.set(self.result_df[f][self.index])
+        for [feature,var] in self.discfeatures:
+            if self.result_df[feature][self.index] != None:
+                var.set(self.result_df[feature][self.index])
     #initialize the buttons
+
     def initialize(self):
         self.grid()
         self.radios=[]
         #buttons; ("label","writing in the coding file")
-        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other","NaN")]
-        clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","NaN")]
+        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other","")]
+        clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","")]
+
+        #initialize attributes; need to come before self.showingexisting() is called
+        self.clausetype= tk.StringVar()
+        self.speechact= tk.StringVar()
+        self.comment = tk.StringVar()
+        self.subQ = tk.StringVar()
+        self.subI = tk.StringVar()
+        self.followup = tk.IntVar()
 
         #build the buttons
-        #set up the row# for the buttons
+        #set up the row for the buttons
         i = 0
+
         #speechact buttons
         #label the category
         label = tk.Label(self,text="Speech Act")
@@ -133,61 +148,76 @@ class simpleapp_tk(tk.Tk):
             self.radios.append(b)
             i+=1
 
+#subquestions
         #initialize SubQuestions (but disable the buttons)
         self.SubQuestions("disabled")
-        #add syntactic features
+#add syntactic features
         self.SynFeatures()
 
 #Frame: discourse properties
         discFrame = tk.Frame(self, highlightbackground ="red", highlightcolor = "red", highlightthickness=4, bd=0)
-        discFrame.grid(column=1, row = i, columnspan =3,sticky="w")
+        discFrame.grid(column=1, row = i, columnspan =3,sticky="w")        
+        discfeatures = {
+        #"FollowUp?":[1, "Same topic as the previous utterance?"],
+        "HereNow": [1, "Is the event happening here and now?"],
+        "ToAdults?": [1, "Is the utterance directed to the adults?"]
+        }
         #Followup Button: is the current utt a follou up of the previous utt?
         self.button_follow = tk.Checkbutton(discFrame, 
             text="Same topic as the previous utterance?",
             variable = self.followup)
-        self.button_follow.grid(column=0,row=1,sticky="w")
+        self.button_follow.grid(column=0,row=0,sticky="w")
         self.radios.append(self.button_follow)
         if self.index == 0:
             self.button_follow.configure(state = "disabled")
+        j = 1 
+        self.discfeatures = []
+        for feature in discfeatures:
+            var = tk.IntVar()
+            cb = tk.Checkbutton(discFrame, text = discfeatures[feature][1],
+                variable = var)
+            cb.grid(column= 0, row = j,sticky="w")
+            if self.result_df[feature][self.index] !=None:
+                var.set([feature][self.index])
+            self.discfeatures.append([feature, var])
+            self.radios.append(cb)
+            j += 1
 
-        i += 1
+        #initialize SubQuestions (but disable the buttons)
+        self.SubQuestions("disabled")
 
-
+        
 
 #Frame: optional
         optFrame = tk.Frame(self)
-        optFrame.grid(column = 1, row = i, columnspan = 3)
+        optFrame.grid(column = 4, row = i, columnspan = 3)
+
         #comment button
         label = tk.Label(optFrame,text="Comments (optional):")
-        label.grid(column=0,row=2,sticky="w")
+        label.grid(column=1,row=i,sticky="s",columnspan=2)
         self.entry = tk.Entry(optFrame,textvariable=self.comment,width = 40)
-        self.entry.grid(column=0,row=3,sticky="w",columnspan=3)
-        
-        #don't forget to add to i!
-        i += 1
+        self.entry.grid(column=1,row=i+1,sticky="n",columnspan=3)
 
 #Frame: buttons
         #Frame placed at the bottom rightcorner
         bottomFrame = tk.Frame(self)
-        bottomFrame.grid(column = 1, row = i, columnspan =3)
+        bottomFrame.grid(column = 3, row = 20)
         #previous button
         #use "self.index" as the go to number; Goto function will subtract 1 anyway
         #save the currect selection
         self.button_prev = tk.Button(bottomFrame,text=u"Prev",
-                height = 2, width = 5,
                 command = lambda: self.Goto(self.index))
         self.button_prev.grid(column=1,row=1)
         self.button_prev.configure(state="normal")
 
         #next button, record results to df and reinitialize
         self.button_next = tk.Button(bottomFrame,text=u"Next",
-                height = 2, width = 5,
                 command = lambda: self.Goto(self.index+2))
         self.button_next.grid(column=2,row=1)
         self.button_next.configure(state="normal")
         
         #progress bar        
-        label = tk.Label(bottomFrame,textvariable=self.progress, width = 8)
+        label = tk.Label(bottomFrame,textvariable=self.progress)
         label.grid(column=3,row=1,sticky="s")
 
         #goto button
@@ -200,7 +230,7 @@ class simpleapp_tk(tk.Tk):
         self.goto_button = tk.Button(bottomFrame, text=u"now!", 
             command = lambda: self.Goto(self.num.get()))
         self.goto_button.grid(column=3,row=2)
-        
+        self.goto_button.configure(state="normal")
 
         #save button,save df to csv
         self.button_save = tk.Button(bottomFrame,text=u"Save",
@@ -227,9 +257,25 @@ class simpleapp_tk(tk.Tk):
             self.SubQuestions("normal")
         elif self.clausetype.get() == "Interrogative":
             self.SubQuestions("normal")
+        else:
+            self.SubQuestions("disabled")
+            #reset subI and subQ, record the results of these two as empty
+            self.subI.set("")
+            self.subQ.set("")
+            self.result_df["SubQ"][self.index] == ""
+            self.result_df["SubQ"][self.index] == ""
     #subcategory buttons
     def SubQuestions(self, status):
-        subQuestions = ["PedagogicalGeneric", "PedagogicalSpecific", "SpecificInfo", "CheckStatus", "Clarification", "Permission", "Commands", "Attention"]
+        subQuestions = [
+        "PedagogicalGeneric", 
+        "PedagogicalSpecific", 
+        "SpecificInfo", 
+        "CheckStatus", 
+        "Clarification",  
+        "Permission", 
+        #"Commands", #taking off these two categories
+        "Attention"
+        ]
         i = 0
         label = tk.Label(self, text = "Subtypes of Questions")
         label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
@@ -256,13 +302,13 @@ class simpleapp_tk(tk.Tk):
             b.configure(state=status)
             self.radios.append(b)
             i += 1   
-    
+
     def SynFeatures(self):        
 #Frame: syntax
         synFrame = tk.Frame(self)
         synFrame.grid(column = 4, row = 0, columnspan = 3, rowspan = 11)
 
-        features= [
+        synfeatures= [
         "Subject",
         "Modal",
         "Modal_2",
@@ -280,16 +326,17 @@ class simpleapp_tk(tk.Tk):
         
         k = 0
         self.synfeatures = []
-        for f in features:
+        for f in synfeatures:
             x = tk.StringVar()
             label = tk.Label(synFrame, text = f)
-            label.grid(column=0, row = k)
+            label.grid(column=0, row = k, sticky = "w")
             c = tk.Entry(synFrame, textvariable = x)
             if self.result_df[f][self.index]!=None:
                 x.set(self.result_df[f][self.index])
             c.grid(column = 1, row = k)
             self.synfeatures.append([f,x])
             k +=1 
+
 
     #record the button click to results_df
     def dfResults(self):
@@ -302,45 +349,45 @@ class simpleapp_tk(tk.Tk):
         self.result_df["FollowUp?"][self.index] =self.followup.get()
         for [f,x] in self.synfeatures:
             self.result_df[f][self.index] = x.get()
+        for [feature,var] in self.discfeatures:
+            self.result_df[feature][self.index] =var.get()
+
+        #self.result_df = self.result_df.fillna("")
 
     #save currect selection, jump to the Record number given
     def Goto(self,num):
         #save
         self.dfResults()
         #make sure the number doesn't exist 0 to the length of the dataset
-        # if num.isdigit() == False:
-        #     self.goto_button.configure(state="disabled")
-        try:
-            int(num)
-            if int(num) < 1:
-                self.index = 0
-            elif int(num)>len(self.record):
-                self.index = len(self.record)-1
-            else:
-                self.index = int(num)-1
-        except ValueError:
-            tk.messagebox.showwarning(title="Error", message="Enter a number!")
-
-
+        if int(num) < 1:
+            self.index = 0
+        elif int(num)>len(self.record):
+            self.index = len(self.record)-1
+        else:
+            self.index = int(num)-1
         #setup next dataviewbox
         self.DisplayData()
         #reset buttons, columns
         self.comment.set("")
+        for [f,x] in self.synfeatures:
+            x.set("")
         self.SubQuestions("disabled")
         self.button_follow.configure(state="normal")
+        if self.index == 0:
+            self.button_follow.configure(state = "disabled")        
         for b in self.radios:
             b.deselect()
         #show existing
         self.ShowExisting()
-        for [f,x] in self.synfeatures:
-            if self.result_df[f][self.index] != None:
-                x.set(self.result_df[f][self.index])
+
 
     #click on quit to write currect selection to df, and save df to csv file
     def Save(self):
         self.dfResults()
         #writing the resulting datafile to .csv file
         self.results = pd.DataFrame.from_dict(self.result_df, orient= "index").T
+        #self.df = pd.DataFrame.from_dict(self.task, orient= "index").T
+        #self.results = pd.merge(self.df, self.results[self.newcol], how = "outer")
         self.results.to_csv(data_dir+"/"+datafile+"-annot.csv", index = False)   
 
     #save and quit    
@@ -414,14 +461,13 @@ if __name__=="__main__":
     #combine "Situation and Notes" into "Comments"
     df["Comments"] = df["Notes"] +df["situation"]
     #reduce the columns of the dataframe
-    df=df[["Record #", "Speaker", "Orthography", "Child", "start_seconds", "end_seconds",'Comments' ]]
+    df=df[["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Comments' ]]
 
     new_col = [
     "SpeechAct",
-    "ClauseType"
+    "ClauseType",
     "SubQ", 
     "SubI", 
-    "FollowUp?", 
     "Comments",
     "Subject",
     "Modal",
@@ -435,18 +481,48 @@ if __name__=="__main__":
     "MultiEmbedding",
     "Conventionalized",
     "PerlocutionaryEffect",
-    "Offer?"]
+    "Offer?"
+    ]
+    int_col =[
+   "FollowUp?", "HereNow","ToAdults?" 
+    ] 
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
+        result_df = result_df.fillna("")
+        if "FollowUp?" in result_df.columns:
+            result_df["FollowUp?"] = result_df["FollowUp?"].fillna("0")
+            # result_df["FollowUp?"] = result_df["FollowUp?"].astype("Int64")                   
     else:
         result_df = df
     for x in new_col:
         if x not in result_df.columns:
-            result_df[x] = [None]*len(result_df)
-    if "FollowUp?" in result_df.columns:
-        result_df["FollowUp?"] = result_df["FollowUp?"].fillna("0")
-        result_df["FollowUp?"] = result_df["FollowUp?"].astype("Int64")
+            result_df[x] = ""
+    for x in int_col:
+        if x not in result_df.columns:
+            result_df[x] = 0    
+        # result_df["SpeechAct"] = [None]*len(result_df)
+        # result_df["ClauseType"] = [None]*len(result_df)
+        # result_df["Comments"] = [None]*len(result_df)
+        # result_df["SubI"] = [None]*len(result_df)
+        # result_df["SubQ"] = [None]*len(result_df)
+        # result_df["Subject"] = [None]*len(result_df)
+        # result_df["Modal"] = [None]*len(result_df)
+        # result_df["Modal_2"] = [None]*len(result_df)
+        # result_df["S-lifting"] = [None]*len(result_df)
+        # result_df["NEG"] = [None]*len(result_df)        
+        # result_df["DiscourseMarker"] = [None]*len(result_df)
+        # result_df["TagType"] = [None]*len(result_df)
+        # result_df["Q_status"] = [None]*len(result_df)
+        # result_df["EmbeddingVerb"] = [None]*len(result_df)
+        # result_df["MultiEmbedding"] = [None]*len(result_df)        
+        # result_df["PerlocutionaryEffect"] = [None]*len(result_df)        
+        # result_df["Conventionalized"] = [None]*len(result_df)
+        # result_df["Offer?"] = [None]*len(result_df)
+        # result_df["HereNow"] = [None]*len(result_df)
+        # result_df["ToAdults?"] = [None]*len(result_df)
+        # result_df["FollowUp?"] = [None]*len(result_df)
+
 
     d = result_df.to_dict()
     df = df.to_dict()

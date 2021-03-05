@@ -1,9 +1,10 @@
 import pandas as pd 
 import os
+from os import path
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
-from os import path
+
 
 
 class simpleapp_tk(tk.Tk):
@@ -12,12 +13,12 @@ class simpleapp_tk(tk.Tk):
         self.parent = parent
         self.index = 0
 
-        self.task = df
-        self.result_df = d
+        self.datafile = datafile #name of the file currently working on
+        self.result_df = d #dataframe
 
-        self.speaker = self.task["Speaker"]
-        self.orthography = self.task["Orthography"]
-        self.record = self.task["Record #"]
+        self.speaker = self.result_df["Speaker"]
+        self.orthography = self.result_df["Orthography"]
+        self.record = self.result_df["Record #"]
 
         #intialize item attribute
         self.item = tk.StringVar()
@@ -35,23 +36,31 @@ class simpleapp_tk(tk.Tk):
 #Frame:textbox
         textFrame = tk.Frame(self)
         textFrame.grid(column=0, row = 0, rowspan = 25)
+        #show the titile of the datafile
+        label = tk.Label(textFrame, text = "Current file: "+ self.datafile)
+        label.grid(column = 0, row = 0, sticky = "sw")
+        #setup the textbox        
         self.text = tk.Text(textFrame, height=35, bg = "#f1f8e9")
+        #3 styles of the text display
         self.text.tag_configure("bold", font=("Arial", 14, "bold"), background="#5FFB17")
         self.text.tag_configure("italics", font=("Arial", 14, "italic"), background="#FFDB58")
         self.text.tag_configure("normal", font = ("Arial", 14))
-        self.text.grid(column=0, row=0, rowspan = 25)
+        self.text.grid(column=0, row=1, rowspan = 25)
 
+        #initiate the progress bar
         self.progress = tk.StringVar()
 
+        #display the textbox
         self.DisplayData()
 
+        #display the annotation labels
         self.initialize()
 
         #when press x to close window, save before close
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def DisplayData(self):
-
+        #the progress bar: current record#/all record#
         self.progress.set(str(self.index+1)+"/"+str(len(self.record)))
         self.item.set("\n" + str(self.record[self.index]) + ". " + self.speaker[self.index] + ": " + self.orthography[self.index])
 
@@ -77,27 +86,18 @@ class simpleapp_tk(tk.Tk):
 
     #if there's existing data, read in and set value
     def ShowExisting(self):
-        if self.result_df["ClauseType"][self.index] != None:
-            self.clausetype.set(self.result_df["ClauseType"][self.index])
-        if self.result_df["SpeechAct"][self.index] != None:
-            self.speechact.set(self.result_df["SpeechAct"][self.index])
-        #enable subcategories if the result file has "question" or "interrogative" recorded
+        self.clausetype.set(self.result_df["ClauseType"][self.index])
+        self.speechact.set(self.result_df["SpeechAct"][self.index])
+        self.situation.set(self.result_df["Situation"][self.index])
+        self.comment.set(self.result_df["Comments"][self.index])
+        self.subI.set(self.result_df["SubI"][self.index])
+        self.subQ.set(self.result_df["SubQ"][self.index])
+        self.followup.set(self.result_df["FollowUp?"][self.index])
+        
         if self.result_df["SpeechAct"][self.index] == "Question":
             self.SubQuestions("normal")
         if self.result_df["ClauseType"][self.index] =="Interrogative":
             self.SubQuestions("normal")
-
-        if self.result_df["Situation"][self.index] != None:
-            self.situation.set(self.result_df["Situation"][self.index])
-        if self.result_df["Comments"][self.index] != None:
-            self.comment.set(self.result_df["Comments"][self.index])
-
-        if self.result_df["SubI"][self.index] != None:
-            self.subI.set(self.result_df["SubI"][self.index])
-        if self.result_df["SubQ"][self.index] != None:
-            self.subQ.set(self.result_df["SubQ"][self.index])
-        if self.result_df["FollowUp?"][self.index] != None:
-            self.followup.set(self.result_df["FollowUp?"][self.index])
 
         for [f,x] in self.synfeatures:
             if self.result_df[f][self.index] != None:
@@ -182,8 +182,8 @@ class simpleapp_tk(tk.Tk):
             cb = tk.Checkbutton(discFrame, text = discfeatures[feature][1],
                 variable = var)
             cb.grid(column= 0, row = j,sticky="w")
-            if self.result_df[feature][self.index] !=None:
-                var.set([feature][self.index])
+            # if self.result_df[feature][self.index] !=None:
+            #     var.set([feature][self.index])
             self.discfeatures.append([feature, var])
             self.radios.append(cb)
             j += 1
@@ -273,7 +273,7 @@ class simpleapp_tk(tk.Tk):
             self.SubQuestions("normal")
         else:
             self.SubQuestions("disabled")
-            #reset subI and subQ, record the results of these two as empty
+            #reset subI and subQ, save the results of these two as empty
             self.subI.set("")
             self.subQ.set("")
             self.result_df["SubQ"][self.index] == ""
@@ -387,6 +387,7 @@ class simpleapp_tk(tk.Tk):
             x.set("")
         self.SubQuestions("disabled")
         self.button_follow.configure(state="normal")
+        #if the first item is accessed using this "Go to" method, "Followup" is disabled
         if self.index == 0:
             self.button_follow.configure(state = "disabled")        
         for b in self.radios:
@@ -400,8 +401,6 @@ class simpleapp_tk(tk.Tk):
         self.dfResults()
         #writing the resulting datafile to .csv file
         self.results = pd.DataFrame.from_dict(self.result_df, orient= "index").T
-        #self.df = pd.DataFrame.from_dict(self.task, orient= "index").T
-        #self.results = pd.merge(self.df, self.results[self.newcol], how = "outer")
         self.results.to_csv(data_dir+"/"+datafile+"-annot.csv", index = False)   
 
     #save and quit    
@@ -434,9 +433,10 @@ if __name__=="__main__":
     dialogue_box.title("Open...")
     dialogue_box.mainloop()
 
-    #clean up output data from PHON
+    #clean up PHON output
+    #read in data
     df = pd.read_csv(data_dir+"/"+datafile+".csv")
-    df = df.fillna("")
+    df = df.fillna("") #get rid of "nan"
 
     # Renaming the columns; getting rid of the ":"s in the header
     df.rename(columns = {'Speaker:Name' :'Speaker'},inplace = True)
@@ -467,7 +467,7 @@ if __name__=="__main__":
     # new pandas default for regex will be False, so need to specify
     df["Orthography"] = df["Orthography"].str.replace(r'[\[\]\d]+', '', regex = True)
 
-    #combine "Situation and Notes" into "Comments"
+    #combine the columns "Situation" and "Notes" into "Situation"
     df["Situation"] = df["Notes"] +df["situation"]
     #reduce the columns of the dataframe
     df=df[["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation' ]]
@@ -511,10 +511,7 @@ if __name__=="__main__":
         if x not in result_df.columns:
             result_df[x] = 0    
 
-
-
     d = result_df.to_dict()
-    df = df.to_dict()
 
     app = simpleapp_tk(None)
     app.title("Annotation Tool")

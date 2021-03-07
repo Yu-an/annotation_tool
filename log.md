@@ -88,5 +88,9 @@ Mar 1
 Mar 3
 - screwed up the data intake; had to revert back to Sunday's commit. Turns out I missed a comma...
 - can select data with dialogue
-- **Need Attention** build a repo for data and dataprocessing
-- seperate comment and situation
+-  (done) build a repo for data and dataprocessing
+- (done)seperate comment and situation
+
+Mar 6
+- seperate initializing subcategories from enabling the buttons (it has been creating new set of buttons everytime "Next" is clicked, slowing the program down)
+- seperating subQ from subI

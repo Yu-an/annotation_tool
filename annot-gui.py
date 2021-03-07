@@ -95,9 +95,9 @@ class simpleapp_tk(tk.Tk):
         self.followup.set(self.result_df["FollowUp?"][self.index])
         
         if self.result_df["SpeechAct"][self.index] == "Question":
-            self.SubQuestions("normal")
+            self.SubQStatus("normal")
         if self.result_df["ClauseType"][self.index] =="Interrogative":
-            self.SubQuestions("normal")
+            self.SubIStatus("normal")
 
         for [f,x] in self.synfeatures:
             if self.result_df[f][self.index] != None:
@@ -109,7 +109,12 @@ class simpleapp_tk(tk.Tk):
 
     def initialize(self):
         self.grid()
+        #list of all buttons
         self.radios=[]
+        #list of subQ and subI buttons
+        self.subQ_buttons =[]
+        self.subI_buttons =[]
+
         #buttons; ("label","writing in the coding file")
         speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other","")]
         clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","")]
@@ -135,7 +140,7 @@ class simpleapp_tk(tk.Tk):
         for text,value in speechActs:
             b = tk.Radiobutton(self,text=text,variable=self.speechact,
                 value=value,indicatoron=0,width=10,height=1, 
-                command = lambda:self.GenerateSubs())
+                command = lambda:self.EnableSubQ())
             b.grid(column=1,row=i,columnspan=2)
             self.radios.append(b)
             i+=1
@@ -147,14 +152,16 @@ class simpleapp_tk(tk.Tk):
         for text,value in clauseTypes:
             b = tk.Radiobutton(self,text=text,variable=self.clausetype,
                 value=value,indicatoron=0,width=10,height=1,
-                command = lambda: self.GenerateSubs())
+                command = lambda: self.EnableSubI())
             b.grid(column=1,row=i,columnspan=2)
             self.radios.append(b)
             i+=1
 
-#subquestions
-        #initialize SubQuestions (but disable the buttons)
-        self.SubQuestions("disabled")
+# #subquestions
+        self.InitSubs()
+        self.SubIStatus("disabled")
+        self.SubQStatus("disabled")
+
 #add syntactic features
         self.SynFeatures()
 
@@ -187,11 +194,6 @@ class simpleapp_tk(tk.Tk):
             self.discfeatures.append([feature, var])
             self.radios.append(cb)
             j += 1
-
-        #initialize SubQuestions (but disable the buttons)
-        self.SubQuestions("disabled")
-
-        
 
 #Frame: optional
         optFrame = tk.Frame(self)
@@ -265,57 +267,68 @@ class simpleapp_tk(tk.Tk):
         self.resizable(True,True)
         self.update()
 
-    #If "Question" or 'interrogative' is selected, then subcategories show up
-    def GenerateSubs(self):
-        if self.speechact.get() == "Question":
-            self.SubQuestions("normal")
-        elif self.clausetype.get() == "Interrogative":
-            self.SubQuestions("normal")
-        else:
-            self.SubQuestions("disabled")
-            #reset subI and subQ, save the results of these two as empty
-            self.subI.set("")
-            self.subQ.set("")
-            self.result_df["SubQ"][self.index] == ""
-            self.result_df["SubQ"][self.index] == ""
     #subcategory buttons
-    def SubQuestions(self, status):
+    def InitSubs(self):
         subQuestions = [
         "PedagogicalGeneric", 
         "PedagogicalSpecific", 
         "SpecificInfo", 
         "CheckStatus", 
         "Clarification",  
-        "Permission", 
+        "AskForPermission", 
         #"Commands", #taking off these two categories
         "Attention"
         ]
         i = 0
-        label = tk.Label(self, text = "Subtypes of Questions")
-        label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
-        label.configure(state = status)
+        self.subQ_label = tk.Label(self, text = "Subtypes of Questions")
+        self.subQ_label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subQuestions:
             b = tk.Radiobutton(self, text=text, variable =self.subQ, 
                 value = text, indicatoron = 0, width=15,height=1)
             b.grid(column=3, row = i, columnspan=1)
-            b.configure(state=status)
+            self.subQ_buttons.append(b)
             self.radios.append(b)
             i += 1
-    #def SubInt(self):
-    #not seperated from "subQ" because may include more subcategories like "here&now"
+        
         subInt = ["Polar", "Wh", "Disjunctive"]
-        label = tk.Label(self, text = "Subtypes of Interrogatives")
-        label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
-        label.configure(state = status)
+        self.subI_label = tk.Label(self, text = "Subtypes of Interrogatives")
+        self.subI_label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subInt:
             b = tk.Radiobutton(self, text=text, variable =self.subI, 
                 value = text, indicatoron = 0, width=15,height=1)
             b.grid(column=3, row = i, columnspan=1)
-            b.configure(state=status)
+            self.subI_buttons.append(b)
             self.radios.append(b)
             i += 1   
+    def SubQStatus(self, status):
+        for b in self.subQ_buttons:
+            b.configure(state=status)
+        self.subQ_label.configure(state = status)
+    def SubIStatus(self,status):
+        for b in self.subI_buttons:
+            b.configure(state=status)        
+        self.subI_label.configure(state = status)
+
+    #If "Question" or 'interrogative' is selected, then subcategories show up
+    def EnableSubQ(self):
+        if self.speechact.get() == "Question":
+            self.SubQStatus("normal")
+        else:
+            self.SubQStatus("disabled")
+            self.subQ.set("")
+            self.result_df["SubQ"][self.index] == ""
+    def EnableSubI(self):            
+        if self.clausetype.get() == "Interrogative":
+            self.SubIStatus("normal")
+        else:
+            self.SubIStatus("disabled")
+            #reset subI and subQ, save the results of these two as empty
+            self.subI.set("")
+            self.result_df["SubQ"][self.index] == ""
+    
+
 
     def SynFeatures(self):        
 #Frame: syntax
@@ -385,7 +398,8 @@ class simpleapp_tk(tk.Tk):
         self.comment.set("")
         for [f,x] in self.synfeatures:
             x.set("")
-        self.SubQuestions("disabled")
+        self.SubQStatus("disabled")
+        self.SubIStatus("disabled")        
         self.button_follow.configure(state="normal")
         #if the first item is accessed using this "Go to" method, "Followup" is disabled
         if self.index == 0:

@@ -93,6 +93,7 @@ class simpleapp_tk(tk.Tk):
         self.subI.set(self.result_df["SubI"][self.index])
         self.subQ.set(self.result_df["SubQ"][self.index])
         self.followup.set(self.result_df["FollowUp?"][self.index])
+        self.uttgoals.set(self.result_df["UttGoals"][self.index])
         
         if self.result_df["SpeechAct"][self.index] == "Question":
             self.SubQStatus("normal")
@@ -161,7 +162,8 @@ class simpleapp_tk(tk.Tk):
         self.InitSubs()
         self.SubIStatus("disabled")
         self.SubQStatus("disabled")
-
+# utterance goals
+        self.UttGoals()
 #add syntactic features
         self.SynFeatures()
 
@@ -267,8 +269,38 @@ class simpleapp_tk(tk.Tk):
         self.resizable(True,True)
         self.update()
 
+    def UttGoals(self):        
+#Frame: syntax
+        self.uttgoals = tk.StringVar()
+        uttFrame = tk.Frame(self)
+        uttFrame.grid(column = 2, row = 0, columnspan = 2, rowspan = 11,  sticky = "n")
+
+        uttGoals= [
+        ("Drawing attention","Attention"),
+        ("Teaching","Teaching"),
+        ("Negotiating","Negotiating"),
+        ("Discussing","Discussing"),
+        ("Metacommunication","Meta"),
+        ("Emoting","Emoting"),
+        ("Verbal routines","Routine"),
+        ("Uninterpretable","")
+        ]
+        z = 0
+        self.uttG_label = tk.Label(uttFrame, text = "Utterance Goals")
+        self.uttG_label.grid(column = 0, row = z, sticky = "s", columnspan = 1)
+        z += 1        
+
+        for text,value in uttGoals:
+            b = tk.Radiobutton(uttFrame, text=text, variable =self.uttgoals, 
+                value = value, indicatoron = 0, width=15,height=1)
+            b.grid(column=0, row = z, columnspan=1)
+            self.radios.append(b)
+            z += 1
     #subcategory buttons
     def InitSubs(self):
+        subFrame = tk.Frame(self)
+        subFrame.grid(column = 4, row = 0, columnspan = 2, rowspan = 11,  sticky = "n")
+        
         subQuestions = [
         "PedagogicalGeneric", 
         "PedagogicalSpecific", 
@@ -276,29 +308,28 @@ class simpleapp_tk(tk.Tk):
         "CheckStatus", 
         "Clarification",  
         "AskForPermission", 
-        #"Commands", #taking off these two categories
         "Attention"
         ]
         i = 0
-        self.subQ_label = tk.Label(self, text = "Subtypes of Questions")
-        self.subQ_label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
+        self.subQ_label = tk.Label(subFrame, text = "Subtypes of Questions")
+        self.subQ_label.grid(column = 0, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subQuestions:
-            b = tk.Radiobutton(self, text=text, variable =self.subQ, 
+            b = tk.Radiobutton(subFrame, text=text, variable =self.subQ, 
                 value = text, indicatoron = 0, width=15,height=1)
-            b.grid(column=3, row = i, columnspan=1)
+            b.grid(column=0, row = i, columnspan=1)
             self.subQ_buttons.append(b)
             self.radios.append(b)
             i += 1
         
         subInt = ["Polar", "Wh", "Disjunctive"]
-        self.subI_label = tk.Label(self, text = "Subtypes of Interrogatives")
-        self.subI_label.grid(column = 3, row = i, sticky = "s", columnspan = 1)
+        self.subI_label = tk.Label(subFrame, text = "Subtypes of Interrogatives")
+        self.subI_label.grid(column = 0, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subInt:
-            b = tk.Radiobutton(self, text=text, variable =self.subI, 
+            b = tk.Radiobutton(subFrame, text=text, variable =self.subI, 
                 value = text, indicatoron = 0, width=15,height=1)
-            b.grid(column=3, row = i, columnspan=1)
+            b.grid(column=0, row = i, columnspan=1)
             self.subI_buttons.append(b)
             self.radios.append(b)
             i += 1   
@@ -328,12 +359,13 @@ class simpleapp_tk(tk.Tk):
             self.subI.set("")
             self.result_df["SubQ"][self.index] == ""
     
+            
 
 
     def SynFeatures(self):        
 #Frame: syntax
         synFrame = tk.Frame(self)
-        synFrame.grid(column = 4, row = 0, columnspan = 3, rowspan = 11)
+        synFrame.grid(column = 6, row = 0, columnspan = 1, rowspan = 11)
 
         synfeatures= [
         "Subject",
@@ -356,14 +388,13 @@ class simpleapp_tk(tk.Tk):
         for f in synfeatures:
             x = tk.StringVar()
             label = tk.Label(synFrame, text = f)
-            label.grid(column=0, row = k, sticky = "w")
+            label.grid(column=1, row = k, sticky = "w")
             c = tk.Entry(synFrame, textvariable = x)
             if self.result_df[f][self.index]!=None:
                 x.set(self.result_df[f][self.index])
-            c.grid(column = 1, row = k)
+            c.grid(column = 2, row = k)
             self.synfeatures.append([f,x])
             k +=1 
-
 
     #record the button click to results_df
     def dfResults(self):
@@ -371,6 +402,7 @@ class simpleapp_tk(tk.Tk):
         self.result_df["SpeechAct"][self.index] =self.speechact.get()
         self.result_df["ClauseType"][self.index] =self.clausetype.get()
         self.result_df["Comments"][self.index] =self.comment.get()
+        self.result_df["UttGoals"][self.index] =self.uttgoals.get()
         self.result_df["SubI"][self.index] =self.subI.get()
         self.result_df["SubQ"][self.index] =self.subQ.get()
         self.result_df["FollowUp?"][self.index] =self.followup.get()
@@ -484,11 +516,12 @@ if __name__=="__main__":
     #combine the columns "Situation" and "Notes" into "Situation"
     df["Situation"] = df["Notes"] +df["situation"]
     #reduce the columns of the dataframe
-    df=df[["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation' ]]
-    old_col = ["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation' ]
+    df=df[["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation', "GRASP", "Morphology" ]]
+    old_col = ["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation', "GRASP", "Morphology"  ]
     new_col = [
     "SpeechAct",
     "ClauseType",
+    "UttGoals",
     "SubQ", 
     "SubI", 
     "Comments",

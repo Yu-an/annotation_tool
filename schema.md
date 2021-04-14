@@ -67,6 +67,13 @@ ii. Alex’s Mother: Show me.
 (21)    Alex’s Mother: (after Alex makes some noise) What?
 ---
 
+- **Immitation**: immitating sounds (onomatopoeia) or immitating the illocutor's utterance
+---
+*Example*
+(22)    Alex’s Mother: vroom vroom
+(23)    Alex's Mother: (imitating Alex's utterance) alei?
+(24)    Alex's Mother: (while making the train flying around) wee!
+---
 -   **Uninterpretable**: uninterpretable vocalizations or verbalizations of which the communicative intent is unclear. Vocalizations include uninterpretable vocalizing or verbalizing.
 
 

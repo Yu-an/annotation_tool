@@ -271,12 +271,6 @@ class simpleapp_tk(tk.Tk):
         self.resizable(True,True)
         self.update()
 
-    # #use arrow keys to go back and forth
-    # def PrevItem(self, event):
-    #     event = lambda: self.Goto(self.index) 
-    # def NextItem(self, command):
-    #     event = lambda: self.Goto(self.index+2)
-
     def UttGoals(self):        
 #Frame: syntax
         self.uttgoals = tk.StringVar()
@@ -291,6 +285,7 @@ class simpleapp_tk(tk.Tk):
         ("Metacommunication","Meta"),
         ("Emoting","Emoting"),
         ("Verbal routines","Routine"),
+        ("Immitation", "Immitation")
         ("Uninterpretable","")
         ]
         z = 0

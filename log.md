@@ -94,3 +94,7 @@ Mar 3
 Mar 6
 - seperate initializing subcategories from enabling the buttons (it has been creating new set of buttons everytime "Next" is clicked, slowing the program down)
 - seperating subQ from subI
+
+Apr 9
+- Add UttGoals (see [annotation schema](../schema.md))
+- **need attention** Add a "?" button to add ? to anycoding

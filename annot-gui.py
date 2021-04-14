@@ -227,13 +227,15 @@ class simpleapp_tk(tk.Tk):
                 command = lambda: self.Goto(self.index))
         self.button_prev.grid(column=1,row=1)
         self.button_prev.configure(state="normal")
+        self.bind("<Left>", lambda i: self.Goto(self.index)) 
 
         #next button, record results to df and reinitialize
         self.button_next = tk.Button(bottomFrame,text=u"Next",
-                command = lambda: self.Goto(self.index+2))
+                command = lambda: self.Goto(self.index+2))       
         self.button_next.grid(column=2,row=1)
         self.button_next.configure(state="normal")
-        
+        self.bind("<Right>", lambda i: self.Goto(self.index+2)) 
+
         #progress bar        
         label = tk.Label(bottomFrame,textvariable=self.progress)
         label.grid(column=3,row=1,sticky="s")
@@ -268,6 +270,12 @@ class simpleapp_tk(tk.Tk):
         self.grid_columnconfigure(0,weight=1)
         self.resizable(True,True)
         self.update()
+
+    # #use arrow keys to go back and forth
+    # def PrevItem(self, event):
+    #     event = lambda: self.Goto(self.index) 
+    # def NextItem(self, command):
+    #     event = lambda: self.Goto(self.index+2)
 
     def UttGoals(self):        
 #Frame: syntax
@@ -359,8 +367,7 @@ class simpleapp_tk(tk.Tk):
             self.subI.set("")
             self.result_df["SubQ"][self.index] == ""
     
-            
-
+        
 
     def SynFeatures(self):        
 #Frame: syntax
@@ -460,6 +467,7 @@ class simpleapp_tk(tk.Tk):
         self.Save()
         #if messagebox.askokcancel("Quit", "Do you want to quit?"):
         self.destroy()
+
 
 if __name__=="__main__":
     datafile = ""

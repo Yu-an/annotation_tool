@@ -285,7 +285,7 @@ class simpleapp_tk(tk.Tk):
         ("Metacommunication","Meta"),
         ("Emoting","Emoting"),
         ("Verbal routines","Routine"),
-        ("Immitation", "Immitation")
+        ("Immitation", "Immitation"),
         ("Uninterpretable","")
         ]
         z = 0

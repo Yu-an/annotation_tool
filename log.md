@@ -98,3 +98,18 @@ Mar 6
 Apr 9
 - Add UttGoals (see [annotation schema](../schema.md))
 - **need attention** Add a "?" button to add ? to anycoding
+
+Apr 18
+- change SubQ to whether speaker knows the answer to the question (the coded SubQ is renamed as SubQcat)
+original subQ (now subQcat, and no longer annotated): 
+        subQuestions = [
+        "PedagogicalGeneric", 
+        "PedagogicalSpecific", 
+        "SpecificInfo", 
+        "CheckStatus", 
+        "Clarification",  
+        "AskForPermission", 
+        "Attention"
+        ]
+current subQ:
+subQuestions = ["yes", "no"]

@@ -117,8 +117,8 @@ class simpleapp_tk(tk.Tk):
         self.subI_buttons =[]
 
         #buttons; ("label","writing in the coding file")
-        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other","")]
-        clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other","")]
+        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other",""), ("I'm not sure", "!!!")]
+        clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other",""), ("I'm not sure", "!!!")]
 
         #initialize attributes; need to come before self.showingexisting() is called
         self.clausetype= tk.StringVar()
@@ -171,8 +171,6 @@ class simpleapp_tk(tk.Tk):
         discFrame = tk.Frame(self, highlightbackground ="red", highlightcolor = "red", highlightthickness=4, bd=0)
         discFrame.grid(column=1, row = i, columnspan =3,sticky="w")        
         discfeatures = {
-        #"FollowUp?":[1, "Same topic as the previous utterance?"],
-        "HereNow": [1, "Is the event happening here and now?"],
         "ToAdults?": [1, "Is the utterance adult-to-adult?"]
         }
         #Followup Button: is the current utt a follou up of the previous utt?
@@ -271,50 +269,14 @@ class simpleapp_tk(tk.Tk):
         self.resizable(True,True)
         self.update()
 
-    def UttGoals(self):        
-#Frame: syntax
-        self.uttgoals = tk.StringVar()
-        uttFrame = tk.Frame(self)
-        uttFrame.grid(column = 2, row = 0, columnspan = 2, rowspan = 11,  sticky = "n")
-
-        uttGoals= [
-        ("Drawing attention","Attention"),
-        ("Teaching","Teaching"),
-        ("Negotiating","Negotiating"),
-        ("Discussing","Discussing"),
-        ("Metacommunication","Meta"),
-        ("Emoting","Emoting"),
-        ("Verbal routines","Routine"),
-        ("Immitation", "Immitation"),
-        ("Uninterpretable","")
-        ]
-        z = 0
-        self.uttG_label = tk.Label(uttFrame, text = "Utterance Goals")
-        self.uttG_label.grid(column = 0, row = z, sticky = "s", columnspan = 1)
-        z += 1        
-
-        for text,value in uttGoals:
-            b = tk.Radiobutton(uttFrame, text=text, variable =self.uttgoals, 
-                value = value, indicatoron = 0, width=15,height=1)
-            b.grid(column=0, row = z, columnspan=1)
-            self.radios.append(b)
-            z += 1
     #subcategory buttons
     def InitSubs(self):
         subFrame = tk.Frame(self)
-        subFrame.grid(column = 4, row = 0, columnspan = 2, rowspan = 11,  sticky = "n")
-        
-        subQuestions = [
-        "PedagogicalGeneric", 
-        "PedagogicalSpecific", 
-        "SpecificInfo", 
-        "CheckStatus", 
-        "Clarification",  
-        "AskForPermission", 
-        "Attention"
-        ]
+        subFrame.grid(column = 3, row = 0, columnspan = 2, rowspan = 9,  sticky = "nw")
+        #change subQ to whether the speaker knows the answer        
+        subQuestions = ["yes", "no"]
         i = 0
-        self.subQ_label = tk.Label(subFrame, text = "Subtypes of Questions")
+        self.subQ_label = tk.Label(subFrame, text = "Does Speaker know the answer?")
         self.subQ_label.grid(column = 0, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subQuestions:
@@ -362,7 +324,35 @@ class simpleapp_tk(tk.Tk):
             self.subI.set("")
             self.result_df["SubQ"][self.index] == ""
     
-        
+    def UttGoals(self):        
+#Frame: uttgoals
+        self.uttgoals = tk.StringVar()
+        uttFrame = tk.Frame(self)
+        uttFrame.grid(column = 5, row = 0, columnspan = 1, rowspan = 10,  sticky = "s")
+
+        uttGoals= [
+        ("Drawing attention","Attention"),
+        ("Teaching","Teaching"),
+        ("Negotiating","Negotiating"),
+        ("Discussing","Discussing"),
+        ("Metacommunication","Meta"),
+        ("Emoting","Emoting"),
+        ("Verbal routines","Routine"),
+        ("Immitation", "Immitation"),
+        ("Uninterpretable",""),
+        ("I'm not sure", "!!!")
+        ]
+        z = 0
+        self.uttG_label = tk.Label(uttFrame, text = "Utterance Goals")
+        self.uttG_label.grid(column = 0, row = z, sticky = "s", columnspan = 1)
+        z += 1        
+
+        for text,value in uttGoals:
+            b = tk.Radiobutton(uttFrame, text=text, variable =self.uttgoals, 
+                value = value, indicatoron = 0, width=15,height=1)
+            b.grid(column=0, row = z, columnspan=1)
+            self.radios.append(b)
+            z += 1        
 
     def SynFeatures(self):        
 #Frame: syntax
@@ -370,19 +360,19 @@ class simpleapp_tk(tk.Tk):
         synFrame.grid(column = 6, row = 0, columnspan = 1, rowspan = 11)
 
         synfeatures= [
-        "Subject",
-        "Modal",
-        "Modal_2",
+        #"Subject",
+        #"Modal",
+        #"Modal_2",
         "DiscourseMarker",
         "TagType",
-        "Q_status",
-        "EmbeddingVerb",
-        "S-lifting",
-        "NEG",
-        "MultiEmbedding",
-        "Conventionalized",
-        "PerlocutionaryEffect",
-        "Offer?"
+        #"Q_status",
+        #"EmbeddingVerb",
+        "S-lifting"#,
+        #"NEG",
+        #"MultiEmbedding",
+        #"Conventionalized",
+        #"PerlocutionaryEffect",
+        #"Offer?"
         ]
         
         k = 0
@@ -482,44 +472,10 @@ if __name__=="__main__":
     dialogue_box.title("Open...")
     dialogue_box.mainloop()
 
-    #clean up PHON output
+    
     #read in data
     df = pd.read_csv(data_dir+"/"+datafile+".csv")
     df = df.fillna("") #get rid of "nan"
-
-    # Renaming the columns; getting rid of the ":"s in the header
-    df.rename(columns = {'Speaker:Name' :'Speaker'},inplace = True)
-    #strip off the dot in "session:name"
-    session =  df["Session:Name"].str.split('.', n=1, expand = True)
-    session1 =session[0]+ session[1]
-    df["Session"] = session1
-
-    #child and session information
-    child = session[0][0]
-    df["Child"] = child
-    session_name = session[1][0]
-
-    # split the Segment column into 'start' and 'end'
-    utt_dur = df['Segment'].str.split("-", n =1, expand = True)
-    df['start_time'] = utt_dur[0]
-    df["end_time"] = utt_dur[1]
-
-
-    # Transform the Starting time and End time into seconds
-    s_time = df['start_time'].str.split(':', n=1, expand = True)
-    df["start_seconds"] = pd.to_numeric(s_time[0])*60+pd.to_numeric(s_time[1])
-    e_time = df['end_time'].str.split(":", n=1, expand = True)
-    df["end_seconds"] =pd.to_numeric(e_time[0])*60 + pd.to_numeric(e_time[1])
-
-
-    # getting rid of the parentheses in "Orthography", save them in a new column 
-    # new pandas default for regex will be False, so need to specify
-    df["Orthography"] = df["Orthography"].str.replace(r'[\[\]\d]+', '', regex = True)
-
-    #combine the columns "Situation" and "Notes" into "Situation"
-    df["Situation"] = df["Notes"] +df["situation"]
-    #reduce the columns of the dataframe
-    df=df[["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation', "GRASP", "Morphology" ]]
     old_col = ["Record #", "Speaker", "Session", "Orthography", "Child", "start_seconds", "end_seconds",'Situation', "GRASP", "Morphology"  ]
     new_col = [
     "SpeechAct",
@@ -528,30 +484,36 @@ if __name__=="__main__":
     "SubQ", 
     "SubI", 
     "Comments",
-    "Subject",
-    "Modal",
-    "Modal_2",
+    #"Subject",
+    #"Modal",
+    #"Modal_2",
     "DiscourseMarker",
     "TagType",
-    "Q_status",
-    "EmbeddingVerb",
-    "S-lifting",
-    "NEG",
-    "MultiEmbedding",
-    "Conventionalized",
-    "PerlocutionaryEffect",
-    "Offer?"
+    #"Q_status",
+    #"EmbeddingVerb",
+    "S-lifting"
+    #"NEG",
+    #"MultiEmbedding"#,
+    #"Conventionalized",
+    #"PerlocutionaryEffect",
+    #"Offer?"
     ]
     int_col =[
-   "FollowUp?", "HereNow","ToAdults?" 
+   "FollowUp?", "ToAdults?" 
     ] 
+
+    df = df[old_col]
 
     if path.exists(data_dir+"/"+datafile+"-annot.csv"):
         result_df = pd.read_csv(data_dir+"/"+datafile+"-annot.csv")
         for x in old_col:
             result_df[x] =df[x]
         result_df = result_df.fillna("")
-                 
+    # elif path.exists(data_dir+"/annotated/"+datafile+"-annot.csv"):
+    #     result_df = pd.read_csv(data_dir+"/annotated/"+datafile+"-annot.csv")
+    #     for x in old_col:
+    #         result_df[x] =df[x]
+    #     result_df = result_df.fillna("")
     else:
         result_df = df
     for x in new_col:

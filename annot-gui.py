@@ -363,7 +363,7 @@ class simpleapp_tk(tk.Tk):
         #"Subject",
         #"Modal",
         #"Modal_2",
-        "DiscourseMarker",
+        #"DiscourseMarker",
         "TagType",
         #"Q_status",
         #"EmbeddingVerb",

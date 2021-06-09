@@ -1,4 +1,6 @@
 log
+YY Jun 8
+Change the input data structure with phon_output script
 
 YY Feb 16
 1. (fixed) error message: tkinter doesn't have messagebox

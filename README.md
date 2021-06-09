@@ -4,5 +4,5 @@ The goal of this project is to see if there is any cue in parents' speech to chi
 
 This annotation tool helps annotators to identify the context (-20, +2 utterances) and annotate each utterance individually. If a particular file has already been annotated, put the -annot.csv file in the same folder as the original file to check the annotations.
 
-For the actual annotation, please refer to the [annotation schema](../schema.md). 
+For the actual annotation, please refer to the [annotation schema](../schema.pdf). 
 

@@ -115,3 +115,8 @@ original subQ (now subQcat, and no longer annotated):
         ]
 current subQ:
 subQuestions = ["yes", "no"]
+
+
+Jan 19 2022
+Add syntactic features
+

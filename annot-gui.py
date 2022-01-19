@@ -106,6 +106,9 @@ class simpleapp_tk(tk.Tk):
         for [feature,var] in self.discfeatures:
             if self.result_df[feature][self.index] != None:
                 var.set(self.result_df[feature][self.index])
+        for [f,x] in self.morphfeatures:
+            if self.result_df[f][self.index] != None:
+                x.set(self.result_df[f][self.index])                
     #initialize the buttons
 
     def initialize(self):
@@ -117,8 +120,8 @@ class simpleapp_tk(tk.Tk):
         self.subI_buttons =[]
 
         #buttons; ("label","writing in the coding file")
-        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other",""), ("I'm not sure", "!!!")]
-        clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other",""), ("I'm not sure", "!!!")]
+        speechActs = [("Assertion","Assertion"),("Question","Question"),("Request","Request"), ("Exclamative", "Exclamative"), ("Other", "Other"), ("Can't tell", "Unk")]
+        clauseTypes = [("Declarative","Declarative"),("Interrogative","Interrogative"),("Imperative","Imperative"),("Fragment","FRAG"), ("Exclamative", "Exclamative"), ("Other", "Other"), ("Ambiguous","Amb"), ("Can't tell", "Unk")]
 
         #initialize attributes; need to come before self.showingexisting() is called
         self.clausetype= tk.StringVar()
@@ -134,7 +137,7 @@ class simpleapp_tk(tk.Tk):
 
         #speechact buttons
         #label the category
-        label = tk.Label(self,text="Speech Act")
+        label = tk.Label(self,text="Speech Act", fg='#3498DB', font=10)
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         i+=1
         #build buttons for speech act
@@ -147,7 +150,7 @@ class simpleapp_tk(tk.Tk):
             i+=1
 
         #setup the buttons for clause type
-        label = tk.Label(self,text="Clause Type")
+        label = tk.Label(self,text="Clause Type", fg='#3498DB', font=10)
         label.grid(column=1,row=i,sticky="s",columnspan=2)
         i+=1
         for text,value in clauseTypes:
@@ -166,16 +169,18 @@ class simpleapp_tk(tk.Tk):
         self.UttGoals()
 #add syntactic features
         self.SynFeatures()
+#add morph features
+        self.MorphFeatures()
 
 #Frame: discourse properties
-        discFrame = tk.Frame(self, highlightbackground ="red", highlightcolor = "red", highlightthickness=4, bd=0)
+        discFrame = tk.Frame(self)
         discFrame.grid(column=1, row = i, columnspan =3,sticky="w")        
         discfeatures = {
         "ToAdults?": [1, "Is the utterance adult-to-adult?"]
         }
         #Followup Button: is the current utt a follou up of the previous utt?
         self.button_follow = tk.Checkbutton(discFrame, 
-            text="Same topic as the previous utterance?",
+            text="Same topic as the previous utterance?",fg='#3498DB', font=10,
             variable = self.followup)
         self.button_follow.grid(column=0,row=0,sticky="w")
         self.radios.append(self.button_follow)
@@ -276,7 +281,7 @@ class simpleapp_tk(tk.Tk):
         #change subQ to whether the speaker knows the answer        
         subQuestions = ["yes", "no"]
         i = 0
-        self.subQ_label = tk.Label(subFrame, text = "Does Speaker know the answer?")
+        self.subQ_label = tk.Label(subFrame, text = "Does Speaker know the answer?" , fg='#3498DB', font=10)
         self.subQ_label.grid(column = 0, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subQuestions:
@@ -288,7 +293,7 @@ class simpleapp_tk(tk.Tk):
             i += 1
         
         subInt = ["Polar", "Wh", "Disjunctive"]
-        self.subI_label = tk.Label(subFrame, text = "Subtypes of Interrogatives")
+        self.subI_label = tk.Label(subFrame, text = "Subtypes of Interrogatives", fg='#3498DB', font=10)
         self.subI_label.grid(column = 0, row = i, sticky = "s", columnspan = 1)
         i += 1
         for text in subInt:
@@ -323,12 +328,13 @@ class simpleapp_tk(tk.Tk):
             #reset subI and subQ, save the results of these two as empty
             self.subI.set("")
             self.result_df["SubQ"][self.index] == ""
+
     
     def UttGoals(self):        
 #Frame: uttgoals
         self.uttgoals = tk.StringVar()
         uttFrame = tk.Frame(self)
-        uttFrame.grid(column = 5, row = 0, columnspan = 1, rowspan = 10,  sticky = "s")
+        uttFrame.grid(column = 6, row = 0, columnspan = 1, rowspan = 12,  sticky = "n")
 
         uttGoals= [
         ("Drawing attention","Attention"),
@@ -336,14 +342,15 @@ class simpleapp_tk(tk.Tk):
         ("Negotiating","Negotiating"),
         ("Discussing","Discussing"),
         ("Metacommunication","Meta"),
+        ("Reading","Reading"),
         ("Emoting","Emoting"),
         ("Verbal routines","Routine"),
         ("Immitation", "Immitation"),
         ("Uninterpretable",""),
-        ("I'm not sure", "!!!")
+        ("I'm not sure", "!")
         ]
         z = 0
-        self.uttG_label = tk.Label(uttFrame, text = "Utterance Goals")
+        self.uttG_label = tk.Label(uttFrame, text = "Utterance Goals", fg='#3498DB', font=10)
         self.uttG_label.grid(column = 0, row = z, sticky = "s", columnspan = 1)
         z += 1        
 
@@ -353,11 +360,42 @@ class simpleapp_tk(tk.Tk):
             b.grid(column=0, row = z, columnspan=1)
             self.radios.append(b)
             z += 1        
+    
+    def MorphFeatures(self):        
+#Frame: morphology
+        morphFrame = tk.Frame(self)
+        morphFrame.grid(column = 5, row = 0, columnspan = 1, rowspan = 7)
 
-    def SynFeatures(self):        
+        morphfeatures= [
+            "Subject",
+            "Verb",
+            "Aux",
+            "AuxInvert",
+            "InitFunction",
+            "PreVFunction",
+            "PostVFunction"
+        ]
+        
+        k = 0
+        self.morph_label = tk.Label(morphFrame, text = "Syntactic Features", fg='#3498DB', font=10)
+        self.morph_label.grid(column = 0, row = k, sticky = "s", columnspan = 1)
+        k += 1    
+        self.morphfeatures = []
+        for f in morphfeatures:
+            x = tk.IntVar()
+            cb = tk.Checkbutton(morphFrame, text = f,
+                variable = x)
+            cb.grid(column= 0, row = k,sticky="w")            
+            if self.result_df[f][self.index]!=None:
+                x.set(self.result_df[f][self.index])
+            self.morphfeatures.append([f,x])
+            self.radios.append(cb)            
+            k +=1 
+
+    def SynFeatures(self):
 #Frame: syntax
         synFrame = tk.Frame(self)
-        synFrame.grid(column = 6, row = 0, columnspan = 1, rowspan = 11)
+        synFrame.grid(column = 5, row = 8, columnspan = 1, rowspan = 3)
 
         synfeatures= [
         #"Subject",
@@ -376,15 +414,18 @@ class simpleapp_tk(tk.Tk):
         ]
         
         k = 0
+        # self.syn_label = tk.Label(synFrame, text = "Does the sentence have:")
+        # self.syn_label.grid(column = 0, row = k, sticky = "s", columnspan = 1)
+        # k += 1         
         self.synfeatures = []
         for f in synfeatures:
             x = tk.StringVar()
             label = tk.Label(synFrame, text = f)
-            label.grid(column=1, row = k, sticky = "w")
+            label.grid(column=0, row = k, sticky = "w")
             c = tk.Entry(synFrame, textvariable = x)
             if self.result_df[f][self.index]!=None:
                 x.set(self.result_df[f][self.index])
-            c.grid(column = 2, row = k)
+            c.grid(column = 0, row = k, columnspan=1)
             self.synfeatures.append([f,x])
             k +=1 
 
@@ -402,6 +443,8 @@ class simpleapp_tk(tk.Tk):
             self.result_df[f][self.index] = x.get()
         for [feature,var] in self.discfeatures:
             self.result_df[feature][self.index] =var.get()
+        for [f,x] in self.morphfeatures:
+            self.result_df[f][self.index] = x.get()
 
         #self.result_df = self.result_df.fillna("")
 
@@ -491,7 +534,14 @@ if __name__=="__main__":
     "TagType",
     #"Q_status",
     #"EmbeddingVerb",
-    "S-lifting"
+    "S-lifting",
+    "Subject",
+    "Verb",
+    "Aux",
+    "AuxInvert",
+    "InitFunction",
+    "PreVFunction",
+    "PostVFunction"
     #"NEG",
     #"MultiEmbedding"#,
     #"Conventionalized",

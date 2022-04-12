@@ -19,6 +19,7 @@ class simpleapp_tk(tk.Tk):
         self.speaker = self.result_df["Speaker"]
         self.orthography = self.result_df["Orthography"]
         self.record = self.result_df["Record #"]
+        
 
         #intialize item attribute
         self.item = tk.StringVar()
@@ -92,7 +93,10 @@ class simpleapp_tk(tk.Tk):
         self.comment.set(self.result_df["Comments"][self.index])
         self.subI.set(self.result_df["SubI"][self.index])
         self.subQ.set(self.result_df["SubQ"][self.index])
-        self.followup.set(self.result_df["FollowUp?"][self.index])
+        if self.result_df["FollowUp?"][self.index] ==1:
+            self.followup.set(True)
+        else:
+            self.followup.set(False)
         self.uttgoals.set(self.result_df["UttGoals"][self.index])
         
         if self.result_df["SpeechAct"][self.index] == "Question":
@@ -104,11 +108,17 @@ class simpleapp_tk(tk.Tk):
             if self.result_df[f][self.index] != None:
                 x.set(self.result_df[f][self.index])
         for [feature,var] in self.discfeatures:
-            if self.result_df[feature][self.index] != None:
-                var.set(self.result_df[feature][self.index])
+            if self.result_df[feature][self.index] ==1:
+                var.set(True)
+            else:
+                var.set(False)
         for [f,x] in self.morphfeatures:
-            if self.result_df[f][self.index] != None:
-                x.set(self.result_df[f][self.index])                
+            if self.result_df[f][self.index]==1:
+                x.set(True)
+            else:
+                x.set(False)
+            # if self.result_df[f][self.index] != None:
+            #     x.set(self.result_df[f][self.index])                
     #initialize the buttons
 
     def initialize(self):
@@ -367,8 +377,9 @@ class simpleapp_tk(tk.Tk):
         morphFrame.grid(column = 5, row = 0, columnspan = 1, rowspan = 7)
 
         morphfeatures= [
-            "Subject",
+            "Subj",
             "Verb",
+            "Obj",
             "Aux",
             "AuxInvert",
             "InitFunction",
@@ -386,8 +397,7 @@ class simpleapp_tk(tk.Tk):
             cb = tk.Checkbutton(morphFrame, text = f,
                 variable = x)
             cb.grid(column= 0, row = k,sticky="w")            
-            if self.result_df[f][self.index]!=None:
-                x.set(self.result_df[f][self.index])
+            # if self.result_df[f][self.index] !=None:
             self.morphfeatures.append([f,x])
             self.radios.append(cb)            
             k +=1 
@@ -423,8 +433,6 @@ class simpleapp_tk(tk.Tk):
             label = tk.Label(synFrame, text = f)
             label.grid(column=0, row = k, sticky = "w")
             c = tk.Entry(synFrame, textvariable = x)
-            if self.result_df[f][self.index]!=None:
-                x.set(self.result_df[f][self.index])
             c.grid(column = 0, row = k, columnspan=1)
             self.synfeatures.append([f,x])
             k +=1 
@@ -445,6 +453,7 @@ class simpleapp_tk(tk.Tk):
             self.result_df[feature][self.index] =var.get()
         for [f,x] in self.morphfeatures:
             self.result_df[f][self.index] = x.get()
+
 
         #self.result_df = self.result_df.fillna("")
 
@@ -534,14 +543,7 @@ if __name__=="__main__":
     "TagType",
     #"Q_status",
     #"EmbeddingVerb",
-    "S-lifting",
-    "Subject",
-    "Verb",
-    "Aux",
-    "AuxInvert",
-    "InitFunction",
-    "PreVFunction",
-    "PostVFunction"
+    "S-lifting"
     #"NEG",
     #"MultiEmbedding"#,
     #"Conventionalized",
@@ -549,7 +551,14 @@ if __name__=="__main__":
     #"Offer?"
     ]
     int_col =[
-   "FollowUp?", "ToAdults?" 
+   "FollowUp?", "ToAdults?" ,"Subj",
+    "Verb",
+    "Obj",
+    "Aux",
+    "AuxInvert",
+    "InitFunction",
+    "PreVFunction",
+    "PostVFunction"
     ] 
 
     df = df[old_col]

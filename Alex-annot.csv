@@ -21,7 +21,7 @@ Record #,Speaker,Session,Orthography,Child,start_seconds,end_seconds,Situation,G
 20,Mother,Alex010512-664,how bout (replacement:replacement:about) this one ?,Alex,73.623,74.186,,[1|0|INCROOT] [2|1|JCT] [3|4|DET] [4|2|POBJ 5|1|PUNCT],[adv:int|how] [prep|about] [pro:dem|this] [pro:indef|one ?],,,,,,,,,,0,0,0,0,0,0,0,0,0,0
 21,Mother,Alex010512-664,okay ready ?,Alex,76.687,77.133,,[1|2|COM] [2|0|ROOT 3|2|PUNCT],[co|okay] [v|ready ?],,,,,,,,,,0,0,0,0,0,0,0,0,0,0
 22,Mother,Alex010512-664,okay hold your hands .,Alex,93.401,94.39,,[1|2|COM] [2|0|ROOT] [3|4|MOD] [4|2|OBJ 5|2|PUNCT],[co|okay] [v|hold] [det:poss|your] [n|hand-PL .],,,,,,,,,,0,0,0,0,0,0,0,0,0,0
-23,Mother,Alex010512-664,lift .,Alex,97.124,97.608,,[1|0|INCROOT 2|1|PUNCT],[n|lift .],,,,,,,,,,0,0,0,0,0,0,0,0,0,0
+23,Mother,Alex010512-664,lift .,Alex,97.124,97.608,,[1|0|INCROOT 2|1|PUNCT],[n|lift .],Question,Interrogative,,,,,,,,0,0,0,0,0,0,0,0,0,0
 24,Mother,Alex010512-664,okay ?,Alex,105.675,105.985,,[1|0|INCROOT 2|1|PUNCT],[co|okay ?],,,,,,,,,,0,0,0,0,0,0,0,0,0,0
 25,Mother,Alex010512-664,one (t:t:trail off),Alex,110.464,111.453,,[1|0|INCROOT 2|1|PUNCT],[pro:indef|one (mt:trail off)],,,,,,,,,,0,0,0,0,0,0,0,0,0,0
 26,Mother,Alex010512-664,two (t:t:trail off),Alex,116.397,117.774,,[1|0|INCROOT 2|1|PUNCT],[det:num|two (mt:trail off)],,,,,,,,,,0,0,0,0,0,0,0,0,0,0

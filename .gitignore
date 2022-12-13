@@ -1,0 +1,5 @@
+/env
+*.DS_Store
+/ipython
+Alex-annot.csv
+log.md
